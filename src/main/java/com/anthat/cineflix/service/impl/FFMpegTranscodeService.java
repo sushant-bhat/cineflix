@@ -20,7 +20,7 @@ public class FFMpegTranscodeService implements TranscodeService {
     private String DIR;
 
     @Override
-    public void transcodeVideo(MultipartFile videoFile, String inputPath, String videoId) throws IOException, InterruptedException {
+    public void transcodeVideo(String originalFileName, String inputPath, String videoId) throws IOException, InterruptedException {
         String[] resolutions = {"640x360", "854x480", "1280x720", "1920x1080"};
         String[] bitRates = {"500k", "800k", "1500k", "4000k"};
 
@@ -30,7 +30,7 @@ public class FFMpegTranscodeService implements TranscodeService {
         }
 
         // Get the file name and create the destination file path
-        String fileName = StringUtils.stripFilenameExtension(videoFile.getOriginalFilename());
+        String fileName = StringUtils.stripFilenameExtension(originalFileName);
         Path destinationPath = transcodePath.resolve(fileName);
 
         for (int index = 0;index < resolutions.length;++index) {

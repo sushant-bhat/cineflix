@@ -85,7 +85,7 @@ public class FileStorageVideoService implements VideoService {
 
             // Now need to transcode the video and save different versions of the file using ffmpeg
             // TODO: Make this maybe async sending a message back video is accepted and being uploaded
-            transcodeService.transcodeVideo(videoFile, videoPath, videoId);
+            transcodeService.transcodeVideo(videoFile.getOriginalFilename(), videoPath, videoId);
         } catch (IOException e) {
             LOGGER.error("Error while creating folder ", e);
             throw new VideoUploadException("Something went wrong while uploading video");

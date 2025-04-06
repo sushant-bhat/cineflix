@@ -1,0 +1,23 @@
+UPLOADING VIDEO
+1. SAVING VIDEO METADATA INTO A DB (SQL OR NO-SQL)
+=> Normalization of video metadata
+=> Lazy vs Eager loading of array type fields
+=> Limitations of Hibernate - The infamous MultipleBagFetchException and N+1 problem
+
+2. VIDEO TRANSCODING
+=> Video formats/containers - Package of different streams (video stream, audio stream, subtitles stream) of a video, Ex - mp4, avi etc
+=> Encoding - Compressing video files
+=> Decoding - Decompressing compressed video files
+=> Demuxing - Separating out the streams of a video container
+=> Muxing - Combining the streams of a video into a container
+=> Video filtering of scaling the input video to different resolutions using different bitrates
+=> The different resolutions videos can also be chunked into segments right at the start while scaling and stored
+=> There's a master file that maps the segment data according to the resolutions
+=> HLS and MPEG-DASH are two popular formats for segmenting and creating master file
+=> Third party software like FFMPEG can be used that does all the above
+
+STREAMING VIDEO
+=> Chunking a video resource using input stream if there's a single video resource to be streamed
+=> Browsers automatically support chunked video requests in video player sending range header to BE
+=> We can also serve the aformentioned video segments with adaptive streaming
+=> Video players also support master file request and subsequent segment file requests in FE

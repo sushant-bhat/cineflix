@@ -8,6 +8,7 @@ import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoUploadException;
 import com.anthat.cineflix.model.Video;
 import com.anthat.cineflix.repo.VideoRepo;
+import com.anthat.cineflix.service.TranscodeService;
 import com.anthat.cineflix.service.VideoService;
 import com.anthat.cineflix.util.AppConstants;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -34,9 +34,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class VideoServiceImpl implements VideoService {
-    private static final Logger LOGGER = LogManager.getLogger(VideoServiceImpl.class);
+public class FileStorageVideoService implements VideoService {
+    private static final Logger LOGGER = LogManager.getLogger(FileStorageVideoService.class);
+
     private final VideoRepo videoRepo;
+    private final TranscodeService transcodeService;
 
     @Value("${app.upload.dir}")
     private String DIR;
@@ -83,58 +85,13 @@ public class VideoServiceImpl implements VideoService {
 
             // Now need to transcode the video and save different versions of the file using ffmpeg
             // TODO: Make this maybe async sending a message back video is accepted and being uploaded
-            transcodeVideo(videoFile, videoPath, videoId);
+            transcodeService.transcodeVideo(videoFile, videoPath, videoId);
         } catch (IOException e) {
             LOGGER.error("Error while creating folder ", e);
             throw new VideoUploadException("Something went wrong while uploading video");
         } catch (Exception e) {
             LOGGER.error("Error while uploading video", e);
             throw new VideoUploadException("Something went wrong while uploading video");
-        }
-    }
-
-    private void transcodeVideo(MultipartFile videoFile, String inputPath, String videoId) throws IOException, InterruptedException {
-        String[] resolutions = {"640x360", "854x480", "1280x720", "1920x1080"};
-        String[] bitRates = {"500k", "800k", "1500k", "4000k"};
-
-        Path transcodePath = Paths.get(DIR, "transcode", videoId);
-        if (!Files.exists(transcodePath)) {
-            Files.createDirectories(transcodePath);
-        }
-
-        // Get the file name and create the destination file path
-        String fileName = StringUtils.stripFilenameExtension(videoFile.getOriginalFilename());
-        Path destinationPath = transcodePath.resolve(fileName);
-
-        for (int index = 0;index < resolutions.length;++index) {
-            String outputPath = destinationPath + "_" + resolutions[index].replace("x", "_") + ".mp4";
-
-            List<String> transcodeCmd = new ArrayList<>();
-            transcodeCmd.add("ffmpeg");
-            transcodeCmd.add("-i");
-            transcodeCmd.add(inputPath);
-            transcodeCmd.add("-vf");
-            transcodeCmd.add("scale=" + resolutions[index]);
-            transcodeCmd.add("-b:v");
-            transcodeCmd.add(bitRates[index]);
-            transcodeCmd.add("-hls_time");
-            transcodeCmd.add("10");
-            transcodeCmd.add("-hls_list_size");
-            transcodeCmd.add("0");
-            transcodeCmd.add("-f");
-            transcodeCmd.add("hls");
-            transcodeCmd.add(outputPath + ".m3u8");
-
-            ProcessBuilder processBuilder = new ProcessBuilder(transcodeCmd);
-            Process process = processBuilder.start();
-
-            int exitCode = process.waitFor();
-
-            if (exitCode != 0) {
-                System.err.println("Video processing failed for resolution: " + resolutions[index] + ". Exit code: " + exitCode);
-            } else {
-                System.out.println("Successfully processed for resolution: " + resolutions[index] + " to " + outputPath);
-            }
         }
     }
 

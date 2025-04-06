@@ -5,6 +5,8 @@ import com.anthat.cineflix.dto.VideoDTO;
 import com.anthat.cineflix.dto.VideoStreamDTO;
 import com.anthat.cineflix.dto.VideoThumbnailDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
+import com.anthat.cineflix.exception.VideoDeleteException;
+import com.anthat.cineflix.exception.VideoUpdateException;
 import com.anthat.cineflix.exception.VideoUploadException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,5 +21,9 @@ public interface VideoService {
 
     VideoThumbnailDTO getVideoThumbnailById(String videoId) throws VideoAccessException;
 
-    List<VideoDTO> getModuleVideos(ModuleConfig heroModuleConfig);
+    List<VideoDTO> getModuleVideos(ModuleConfig heroModuleConfig) throws VideoAccessException;
+
+    VideoDTO updateVideoInfo(VideoDTO videoDetails, String videoId) throws VideoUpdateException;
+
+    VideoDTO removeVideo(String videoId) throws VideoAccessException, VideoDeleteException;
 }

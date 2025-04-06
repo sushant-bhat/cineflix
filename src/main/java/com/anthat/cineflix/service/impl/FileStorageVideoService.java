@@ -5,6 +5,7 @@ import com.anthat.cineflix.dto.VideoDTO;
 import com.anthat.cineflix.dto.VideoStreamDTO;
 import com.anthat.cineflix.dto.VideoThumbnailDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
+import com.anthat.cineflix.exception.VideoDeleteException;
 import com.anthat.cineflix.exception.VideoUploadException;
 import com.anthat.cineflix.model.Video;
 import com.anthat.cineflix.repo.VideoRepo;
@@ -186,6 +187,36 @@ public class FileStorageVideoService implements VideoService {
         }
 
         return videoList.stream().map(VideoDTO::clone).toList();
+    }
+
+    // TODO: Implement to update the thumbnail and video files as well
+    @Override
+    public VideoDTO updateVideoInfo(VideoDTO videoDetails, String videoId) {
+        Video foundVideo = videoRepo.findById(videoId).orElse(null);
+        if (foundVideo == null) {
+            throw new VideoAccessException("Requested video not found");
+        }
+
+        foundVideo.updateFromDTO(videoDetails);
+        videoRepo.save(foundVideo);
+        return videoDetails;
+    }
+
+    // TODO: Implement to delete the thumbnail and video files as well
+    @Override
+    public VideoDTO removeVideo(String videoId) throws VideoAccessException, VideoDeleteException {
+        try {
+            Video foundVideo = videoRepo.findById(videoId).orElse(null);
+            if (foundVideo == null) {
+                throw new VideoAccessException("Request video not found");
+            }
+            videoRepo.deleteById(videoId);
+        } catch (IllegalArgumentException exp) {
+            throw new VideoAccessException(exp.getMessage());
+        } catch (Exception exp) {
+            throw new VideoDeleteException(exp.getMessage());
+        }
+        return null;
     }
 
 }

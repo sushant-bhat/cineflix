@@ -5,6 +5,8 @@ import com.anthat.cineflix.dto.VideoDTO;
 import com.anthat.cineflix.dto.VideoStreamDTO;
 import com.anthat.cineflix.dto.VideoThumbnailDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
+import com.anthat.cineflix.exception.VideoDeleteException;
+import com.anthat.cineflix.exception.VideoUpdateException;
 import com.anthat.cineflix.exception.VideoUploadException;
 import com.anthat.cineflix.service.VideoService;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -101,11 +105,6 @@ public class VideoController {
         }
     }
 
-    @GetMapping("/browse/{catId}")
-    public String getCategoryVideosResult(@PathVariable int catId) {
-        return "Showing videos of category " + catId;
-    }
-
     @PostMapping
     public ResponseEntity<String> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("file") MultipartFile videoFile) {
         try {
@@ -117,12 +116,34 @@ public class VideoController {
     }
 
     @PutMapping("/{videoId}")
-    public void updateVideo(@PathVariable int videoId) {
-
+    public ResponseEntity<VideoResponse> updateVideo(@RequestBody VideoDTO videoDetails, @PathVariable String videoId) {
+        try {
+            VideoDTO updatedVideoDetails = videoService.updateVideoInfo(videoDetails, videoId);
+            return ResponseEntity.ok(VideoResponse.builder().videoMeta(updatedVideoDetails).build());
+        } catch (VideoUpdateException exp) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(VideoResponse.builder().errorMessage("Something went wrong when updating").build());
+        } catch (VideoAccessException exp) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(VideoResponse.builder().errorMessage("Couldn't access the video requested").build());
+        }
     }
 
-    @GetMapping("/search")
-    public String getSearchVideosResult(@RequestParam String query) {
-        return "Showing videos for query " + query;
+    @DeleteMapping("/{videoId}")
+    public ResponseEntity<VideoResponse> deleteVideo(@PathVariable String videoId) {
+        try {
+            VideoDTO deletedVideoDetails = videoService.removeVideo(videoId);
+            return ResponseEntity.ok(VideoResponse.builder().videoMeta(deletedVideoDetails).build());
+        } catch (VideoAccessException exp) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(VideoResponse.builder().errorMessage("Couldn't access the video requested").build());
+        } catch (VideoDeleteException exp) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(VideoResponse.builder().errorMessage("Something went wrong when deleting the video").build());
+        }
     }
 }

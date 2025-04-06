@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 @Builder
 public class ModuleResponse {
+    private String errorMessage;
     private String moduleId;
     private List<VideoDTO> videoList;
 }

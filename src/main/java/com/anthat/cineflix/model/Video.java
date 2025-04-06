@@ -65,6 +65,14 @@ public class Video {
         return video;
     }
 
+    public void updateFromDTO(VideoDTO videoDTO) {
+        setVideoTitle(videoDTO.getVideoTitle());
+        setVideoDescription(videoDTO.getVideoDescription());
+        setVideoDirector(videoDTO.getVideoDirector());
+        setVideoTagsFromDTO(videoDTO.getVideoTags());
+        setVideoCastFromDTO(videoDTO.getVideoCast());
+    }
+
     private void setVideoTagsFromDTO(List<String> tags) {
         videoTags = tags.stream().map(tag -> new VideoTag(tag, this)).toList();
     }

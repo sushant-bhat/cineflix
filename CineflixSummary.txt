@@ -13,7 +13,8 @@ UPLOADING VIDEO
 => Video filtering of scaling the input video to different resolutions using different bitrates
 => The different resolutions videos can also be chunked into segments right at the start while scaling and stored
 => There's a master file that maps the segment data according to the resolutions
-=> HLS and MPEG-DASH are two popular formats for segmenting and creating master file
+    =>
+=> HLS and DASH are two popular formats for segmenting and creating master file
 => Third party software like FFMPEG can be used that does all the above
 
 STREAMING VIDEO

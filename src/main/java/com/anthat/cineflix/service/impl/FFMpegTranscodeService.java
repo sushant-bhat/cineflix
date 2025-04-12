@@ -3,64 +3,123 @@ package com.anthat.cineflix.service.impl;
 import com.anthat.cineflix.service.TranscodeService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * This service is responsible for transcoding original video into different resolutions and segmenting, and stores them in the specified destination
+ */
 @Service
 public class FFMpegTranscodeService implements TranscodeService {
+    private static class VariantInfo {
+        String resolution;
+        String bitrate;
+        String playlistPath;
 
-    @Value("${app.upload.dir}")
-    private String DIR;
+        public VariantInfo(String resolution, String bitrate, String playlistPath) {
+            this.resolution = resolution;
+            this.bitrate = bitrate;
+            this.playlistPath = playlistPath;
+        }
+    }
+
+    private String generateHLSFilePrefix(String base, String resolution) {
+        return base + resolution.split("x")[1] + "p";
+    }
 
     @Override
-    public void transcodeVideo(String originalFileName, String inputPath, String videoId) throws IOException, InterruptedException {
-        String[] resolutions = {"640x360", "854x480", "1280x720", "1920x1080"};
-        String[] bitRates = {"500k", "800k", "1500k", "4000k"};
+    public void transcodeVideo(String sourceVideoUrl, String videoId, String destinationUrl) throws IOException {
+        List<String> resolutions = List.of("640x360", "854x480", "1280x720", "1920x1080");
+        List<String> bitRates = List.of("500k", "800k", "1500k", "4000k");
 
-        Path transcodePath = Paths.get(DIR, "transcode", videoId);
-        if (!Files.exists(transcodePath)) {
-            Files.createDirectories(transcodePath);
+        // /Users/s1b030z/Repo/cineflix/data/transcode/<id>
+        Path destinationPath = Paths.get(destinationUrl);
+        if (!Files.exists(destinationPath)) {
+            Files.createDirectories(destinationPath);
         }
 
-        // Get the file name and create the destination file path
-        String fileName = StringUtils.stripFilenameExtension(originalFileName);
-        Path destinationPath = transcodePath.resolve(fileName);
+        for (int i = 0; i < resolutions.size(); i++) {
+            String resolution = resolutions.get(i);
+            String bitrate = bitRates.get(i);
 
-        for (int index = 0;index < resolutions.length;++index) {
-            String outputPath = destinationPath + "_" + resolutions[index].replace("x", "_") + ".mp4";
+            String segmentFilePrefix = destinationPath.resolve(generateHLSFilePrefix("segment_", resolution)).toString();
+            String indexFilePrefix = destinationPath.resolve(generateHLSFilePrefix("index_", resolution)).toString();
 
-            List<String> transcodeCmd = new ArrayList<>();
-            transcodeCmd.add("ffmpeg");
-            transcodeCmd.add("-i");
-            transcodeCmd.add(inputPath);
-            transcodeCmd.add("-vf");
-            transcodeCmd.add("scale=" + resolutions[index]);
-            transcodeCmd.add("-b:v");
-            transcodeCmd.add(bitRates[index]);
-            transcodeCmd.add("-hls_time");
-            transcodeCmd.add("10");
-            transcodeCmd.add("-hls_list_size");
-            transcodeCmd.add("0");
-            transcodeCmd.add("-f");
-            transcodeCmd.add("hls");
-            transcodeCmd.add(outputPath + ".m3u8");
+            List<String> command = new ArrayList<>();
+            command.add("ffmpeg");
+            command.add("-i");
+            command.add(sourceVideoUrl);
+            command.add("-vf");
+            command.add(String.format("scale=%s", resolution));
+            command.add("-c:v");
+            command.add("libx264");
+            command.add("-b:v");
+            command.add(bitrate);
+            command.add("-preset");
+            command.add("veryfast");
+            command.add("-hls_time");
+            command.add("10");
+            command.add("-hls_list_size");
+            command.add("0");
+            command.add("-hls_segment_filename");
+            command.add(segmentFilePrefix + "_%05d.ts"); // /Users/s1b030z/Repo/cineflix/data/transcode/<id>/segment_360p_1.ts
+            command.add(indexFilePrefix + ".m3u8"); // /Users/s1b030z/Repo/cineflix/data/transcode/<id>/360p/index_360p.m3u8
 
-            ProcessBuilder processBuilder = new ProcessBuilder(transcodeCmd);
-            Process process = processBuilder.start();
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.redirectErrorStream(true).start();
+            try {
+                boolean finished = process.waitFor(60, TimeUnit.SECONDS);
 
-            int exitCode = process.waitFor();
-
-            if (exitCode != 0) {
-                System.err.println("Video processing failed for resolution: " + resolutions[index] + ". Exit code: " + exitCode);
-            } else {
-                System.out.println("Successfully processed for resolution: " + resolutions[index] + " to " + outputPath);
+                if (!finished || process.exitValue() != 0) {
+                    System.err.println("FFmpeg processing failed for resolution: " + resolution);
+                    java.io.InputStream errorStream = process.getInputStream();
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = errorStream.read(buffer)) != -1) {
+                        System.err.print(new String(buffer, 0, len));
+                    }
+                } else {
+                    System.out.println("FFmpeg processing successful for resolution: " + resolution);
+                }
+            } catch (InterruptedException exp) {
+                System.out.println(exp.getMessage());
             }
         }
+
+        createMasterPlaylist(destinationUrl, resolutions);
+    }
+
+    private void createMasterPlaylist(String outputDir, List<String> resolutions) throws IOException {
+        File masterPlaylistFile = new File(outputDir,  "master.m3u8");
+        StringBuilder masterPlaylistContent = new StringBuilder("#EXTM3U\n");
+
+        for (String resolution : resolutions) {
+            String bandwidth = getApproximateBandwidth(resolution); // Implement this logic
+            masterPlaylistContent
+                    .append("#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID=\"media\",NAME=\"")
+                    .append(resolution)
+                    .append("\",DEFAULT=NO,AUTOSELECT=YES,URI=\"")
+                    .append("index_").append(resolution.split("x")[1]).append("p.m3u8\"\n");
+            masterPlaylistContent.append("#EXT-X-STREAM-INF:BANDWIDTH=").append(bandwidth).append(",RESOLUTION=")
+                    .append(resolution).append(",CODECS=\"avc1.42c015, mp4a.40.2\",GROUP-ID=\"media\"\n")
+                    .append("index_").append(resolution.split("x")[1]).append("p.m3u8\"\n");
+        }
+
+        java.nio.file.Files.writeString(masterPlaylistFile.toPath(), masterPlaylistContent.toString());
+    }
+
+    private String getApproximateBandwidth(String resolution) {
+        // Implement logic to estimate bandwidth based on resolution
+        // This is a simplified example
+        if (resolution.equals("640x360")) return "1000000";
+        if (resolution.equals("1280x720")) return "3000000";
+        return "2000000";
     }
 }

@@ -19,14 +19,14 @@ public class VideoTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String tag;
+    private String catId;
 
     @ManyToOne
     @JoinColumn(name = "video_id")
     private Video video;
 
-    public VideoTag(String tag, Video video) {
-        this.tag = tag;
+    public VideoTag(String catId, Video video) {
+        this.catId = catId;
         this.video = video;
     }
 }

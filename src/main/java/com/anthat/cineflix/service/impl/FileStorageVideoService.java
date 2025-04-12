@@ -18,7 +18,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,7 +88,8 @@ public class FileStorageVideoService implements VideoService {
 
             // Now need to transcode the video and save different versions of the file using ffmpeg
             // TODO: Make this maybe async sending a message back video is accepted and being uploaded
-            transcodeService.transcodeVideo(videoFile.getOriginalFilename(), videoPath, videoId);
+            Path destinationPath = Paths.get(DIR, "transcode", videoId);
+            transcodeService.transcodeVideo(videoPath, videoId, destinationPath.toString());
         } catch (IOException e) {
             LOGGER.error("Error while creating folder ", e);
             throw new VideoUploadException("Something went wrong while uploading video");
@@ -217,6 +220,30 @@ public class FileStorageVideoService implements VideoService {
             throw new VideoDeleteException(exp.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public VideoStreamDTO fetchVideoSegment(String videoId, String fileName) {
+        Path segmentPath = Paths.get(DIR, "transcode", videoId, fileName);
+        if (!Files.exists(segmentPath)) {
+            throw new VideoAccessException("Requested video segment not present");
+        }
+        return VideoStreamDTO.builder()
+                .videoResource(new FileSystemResource(segmentPath))
+                .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .build();
+    }
+
+    @Override
+    public VideoStreamDTO fetchManifest(String videoId, String fileName) {
+        Path manifestPath = Paths.get(DIR, "transcode", videoId, fileName);
+        if (!Files.exists(manifestPath)) {
+            throw new VideoAccessException("Requested video manifest not present");
+        }
+        return VideoStreamDTO.builder()
+                .videoResource(new FileSystemResource(manifestPath))
+                .contentType("application/vnd.apple.mpegurl")
+                .build();
     }
 
 }

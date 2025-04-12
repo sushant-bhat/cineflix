@@ -52,6 +52,10 @@ public class Video {
 
     private String videoUrl;
 
+    private String transcodedVideoSegmentUrl;
+
+    private String transcodedVideoManifestUrl;
+
     public static Video clone(VideoDTO videoDTO) {
         Video video = Video.builder()
                 .videoTitle(videoDTO.getVideoTitle())

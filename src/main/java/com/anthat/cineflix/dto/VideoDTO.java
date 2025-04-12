@@ -43,7 +43,7 @@ public class VideoDTO {
     }
 
     private void setVideoTagsFromMeta(List<VideoTag> tags) {
-        videoTags = tags.stream().map(VideoTag::getTag).toList();
+        videoTags = tags.stream().map(VideoTag::getCatId).toList();
     }
 
     private void setVideoCastFromMeta(List<VideoCast> casts) {

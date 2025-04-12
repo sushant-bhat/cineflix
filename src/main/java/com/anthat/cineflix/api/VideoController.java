@@ -69,7 +69,7 @@ public class VideoController {
         }
     }
 
-    @GetMapping(value = "/videos/{videoId}/{filename:.+}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/{videoId}/{filename:.+}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getVideoSegment(@PathVariable String videoId, @PathVariable String filename) {
         try {
             VideoStreamDTO videoStreamDTO = videoService.fetchVideoSegment(videoId, filename);
@@ -87,7 +87,7 @@ public class VideoController {
         }
     }
 
-    @GetMapping(value = "/videos/{videoId}/{filename:.+}", produces = "application/vnd.apple.mpegurl")
+    @GetMapping(value = "/{videoId}/{filename:.+}", produces = "application/vnd.apple.mpegurl")
     public ResponseEntity<Resource> getVideoManifest(@PathVariable String videoId, @PathVariable String filename) {
         try {
             VideoStreamDTO videoStreamDTO = videoService.fetchManifest(videoId, filename);

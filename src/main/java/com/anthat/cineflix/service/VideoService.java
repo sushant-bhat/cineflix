@@ -8,7 +8,6 @@ import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoDeleteException;
 import com.anthat.cineflix.exception.VideoUpdateException;
 import com.anthat.cineflix.exception.VideoUploadException;
-import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

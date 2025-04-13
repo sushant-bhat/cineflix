@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,61 +57,6 @@ public class VideoController {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
                     .body(thumbnail.getThumbnailResource());
-        } catch (VideoAccessException exp) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (Exception exp) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-    }
-
-    @GetMapping(value = "/{videoId}/{filename:.+}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Resource> getVideoSegment(@PathVariable String videoId, @PathVariable String filename) {
-        try {
-            VideoStreamDTO videoStreamDTO = videoService.fetchVideoSegment(videoId, filename);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(videoStreamDTO.getContentType()))
-                    .body(videoStreamDTO.getVideoResource());
-        } catch (VideoAccessException exp) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (Exception exp) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-    }
-
-    @GetMapping(value = "/{videoId}/{filename:.+}", produces = "application/vnd.apple.mpegurl")
-    public ResponseEntity<Resource> getVideoManifest(@PathVariable String videoId, @PathVariable String filename) {
-        try {
-            VideoStreamDTO videoStreamDTO = videoService.fetchManifest(videoId, filename);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(videoStreamDTO.getContentType()))
-                    .body(videoStreamDTO.getVideoResource());
-        } catch (VideoAccessException exp) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (Exception exp) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-    }
-
-    @GetMapping("/{videoId}/stream")
-    public ResponseEntity<Resource> getVideoForStreaming(@PathVariable String videoId, @RequestHeader(value = "Range", required = false) String range) {
-        try {
-            VideoStreamDTO videoStream = videoService.getVideoStreamById(videoId, range);
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                    .headers(videoStream.getHeaders())
-                    .contentType(MediaType.parseMediaType(videoStream.getContentType()))
-                    .body(videoStream.getVideoResource());
         } catch (VideoAccessException exp) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)

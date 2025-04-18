@@ -66,9 +66,9 @@ public class FileStorageVideoService implements VideoService {
     }
 
     @Override
-    public void uploadVideo(VideoDTO video, MultipartFile videoThumbnail, MultipartFile videoFile) throws VideoUploadException {
+    public VideoDTO uploadVideo(VideoDTO videoDetails, MultipartFile videoThumbnail, MultipartFile videoFile) throws VideoUploadException {
         try {
-            Video videoEntity = Video.clone(video);
+            Video videoEntity = Video.clone(videoDetails);
             videoEntity.setVideoId(UUID.randomUUID().toString());
 
             String videoId = videoEntity.getVideoId();
@@ -90,6 +90,8 @@ public class FileStorageVideoService implements VideoService {
             // TODO: Make this maybe async sending a message back video is accepted and being uploaded
             Path destinationPath = Paths.get(DIR, "transcode", videoId);
             transcodeService.transcodeVideo(videoPath, videoId, destinationPath.toString());
+
+            return videoDetails;
         } catch (IOException e) {
             LOGGER.error("Error while creating folder ", e);
             throw new VideoUploadException("Something went wrong while uploading video");

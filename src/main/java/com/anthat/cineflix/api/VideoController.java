@@ -85,13 +85,16 @@ public class VideoController {
     }
 
     @PostMapping
-    public ResponseEntity<String> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("file") MultipartFile videoFile) {
+    public ResponseEntity<VideoResponse> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("file") MultipartFile videoFile) {
         try {
-            videoService.uploadVideo(video, videoThumbnail, videoFile);
-        } catch (VideoUploadException exp) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exp.getMessage());
+            VideoDTO videoDetails = videoService.uploadVideo(video, videoThumbnail, videoFile);
+            return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoDetails).build());
+        } catch (Exception exp) {
+            // TODO: Add log
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(VideoResponse.builder().errorMessage("Couldn't upload video").build());
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body("Video uploaded");
     }
 
     @PutMapping("/{videoId}")

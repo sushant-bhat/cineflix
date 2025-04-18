@@ -106,10 +106,10 @@ public class FFMpegTranscodeService implements TranscodeService {
                     .append("#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID=\"media\",NAME=\"")
                     .append(resolution)
                     .append("\",DEFAULT=NO,AUTOSELECT=YES,URI=\"")
-                    .append("index_").append(resolution.split("x")[1]).append("p.m3u8\"\n");
+                    .append("index_").append(resolution.split("x")[1]).append("p.m3u8\n");
             masterPlaylistContent.append("#EXT-X-STREAM-INF:BANDWIDTH=").append(bandwidth).append(",RESOLUTION=")
                     .append(resolution).append(",CODECS=\"avc1.42c015, mp4a.40.2\",GROUP-ID=\"media\"\n")
-                    .append("index_").append(resolution.split("x")[1]).append("p.m3u8\"\n");
+                    .append("index_").append(resolution.split("x")[1]).append("p.m3u8\n");
         }
 
         java.nio.file.Files.writeString(masterPlaylistFile.toPath(), masterPlaylistContent.toString());

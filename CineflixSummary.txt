@@ -22,3 +22,15 @@ STREAMING VIDEO
 => Browsers automatically support chunked video requests in video player sending range header to BE
 => We can also serve the aformentioned video segments with adaptive streaming
 => Video players also support master file request and subsequent segment file requests in FE
+
+SECURITY (AUTHORIZATION & AUTHENTICATION)
+=> Best source to explain spring security: https://www.youtube.com/watch?v=caCJAJC41Rk&ab_channel=JavaBrains
+=> When you add spring security dependency to the project, spring automatically configures a basic authentication in SpringBootWebSecurityConfiguration
+=> The username and password provided is Base64 encoded in the format username:password and sent to BE for verification in the case above
+=> Only 1 user can be configured using the basic auth
+=> CSRF stands for Cross-Site Request Forgery.
+    => It’s a security attack where a malicious website tricks your browser into sending an unwanted request (like POST/PUT/DELETE) to your app where you're already logged in.
+    => To prevent this, Spring Security automatically protects all state-changing requests (POST, PUT, DELETE, PATCH) by expecting a valid CSRF token with each request.
+=> You get 401 forbidden when server doesn't recognise someone (authentication failure) and 403 forbidden when server recognises someone, but they don't have the required permission (authorization failure)
+=> Most sites use one way encryption (hashing) to store passwords, so even the application doesn't have access to original password,
+this is why most sites will tell you to set a new password instead of recovering the old one

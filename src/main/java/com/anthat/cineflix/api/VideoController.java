@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,6 +69,7 @@ public class VideoController {
         }
     }
 
+    @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/{videoId}/edit")
     public ResponseEntity<VideoResponse> getVideoDetailsForEdit(@PathVariable String videoId) {
         try {
@@ -84,6 +86,7 @@ public class VideoController {
         }
     }
 
+    @PreAuthorize("hasRole('CREATOR')")
     @PostMapping
     public ResponseEntity<VideoResponse> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("file") MultipartFile videoFile) {
         try {
@@ -97,6 +100,7 @@ public class VideoController {
         }
     }
 
+    @PreAuthorize("hasRole('CREATOR')")
     @PutMapping("/{videoId}")
     public ResponseEntity<VideoResponse> updateVideo(@RequestBody VideoDTO videoDetails, @PathVariable String videoId) {
         try {
@@ -113,6 +117,7 @@ public class VideoController {
         }
     }
 
+    @PreAuthorize("hasRole('CREATOR')")
     @DeleteMapping("/{videoId}")
     public ResponseEntity<VideoResponse> deleteVideo(@PathVariable String videoId) {
         try {

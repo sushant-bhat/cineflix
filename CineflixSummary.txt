@@ -33,4 +33,14 @@ SECURITY (AUTHORIZATION & AUTHENTICATION)
     => To prevent this, Spring Security automatically protects all state-changing requests (POST, PUT, DELETE, PATCH) by expecting a valid CSRF token with each request.
 => You get 401 forbidden when server doesn't recognise someone (authentication failure) and 403 forbidden when server recognises someone, but they don't have the required permission (authorization failure)
 => Most sites use one way encryption (hashing) to store passwords, so even the application doesn't have access to original password,
-this is why most sites will tell you to set a new password instead of recovering the old one
+    this is why most sites will tell you to set a new password instead of recovering the old one
+=> If you put authorization check on registering new users, you can end up in a deadlock as there are no users in the system initially
+    and you can't add users without admin user credentials.
+    => We can either seed the user DB with an initial admin user or
+    => Allow open registration with strong controls: Use email verification and CAPTCHA.
+=> To ensure reliant safe message from A to B:
+    => A will first encrypt message with B's public key - EM
+    => A will then encrypt this EM again with its own private key - EEM
+    => When B receives this EEM, it will first decrypt it with A's public key and get EM
+    => Then B decrypts this EM further using its own private key to get the original message
+    => If some hacker intercepts this EEM in between, the hacker can decrypt it using A's public key but it will only get the encrypted message EM

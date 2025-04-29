@@ -36,7 +36,9 @@ public class SecurityConfig {
 //        http.formLogin(withDefaults());
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/api/v1/user").permitAll()
+                        .anyRequest().authenticated())
                 .httpBasic(withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();

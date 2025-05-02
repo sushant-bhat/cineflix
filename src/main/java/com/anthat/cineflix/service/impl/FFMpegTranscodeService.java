@@ -1,7 +1,7 @@
 package com.anthat.cineflix.service.impl;
 
 import com.anthat.cineflix.service.TranscodeService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -35,6 +35,7 @@ public class FFMpegTranscodeService implements TranscodeService {
     }
 
     @Override
+    @Async
     public void transcodeVideo(String sourceVideoUrl, String videoId, String destinationUrl) throws IOException {
         List<String> resolutions = List.of("640x360", "854x480", "1280x720", "1920x1080");
         List<String> bitRates = List.of("500k", "800k", "1500k", "4000k");

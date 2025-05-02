@@ -16,8 +16,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class VideoTag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     private String catId;
 

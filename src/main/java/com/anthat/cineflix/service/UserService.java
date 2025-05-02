@@ -4,6 +4,7 @@ import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.model.Authority;
 import com.anthat.cineflix.model.User;
 import com.anthat.cineflix.repo.UserRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,12 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepo userRepo;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -33,7 +31,7 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public UserDTO registerUser(UserDTO userInfo) {
+    public UserDTO registerUser(UserDTO userInfo, PasswordEncoder passwordEncoder) {
         try {
             User user = User.builder()
                             .userName(userInfo.getUsername())

@@ -11,4 +11,5 @@ import lombok.Setter;
 public class UserDetailsResponse {
     private UserDTO userDetails;
     private String errorMessage;
+    private String jwt;
 }

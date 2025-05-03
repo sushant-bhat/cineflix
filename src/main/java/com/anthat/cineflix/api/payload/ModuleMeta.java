@@ -7,4 +7,5 @@ import lombok.Getter;
 @Getter
 public class ModuleMeta {
     private String query;
+    private String category;
 }

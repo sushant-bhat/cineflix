@@ -1,7 +1,17 @@
 {
   "mapping": {
-    "1": "Action",
-    "2": "Thriller",
-    "3": "Bollywood"
+    "action": 1,
+    "adventure": 2,
+    "comedy": 3,
+    "drama": 4,
+    "fantasy": 5,
+    "historical": 6,
+    "horror": 7,
+    "musical": 8,
+    "mystery": 9,
+    "romance": 10,
+    "science fiction": 11,
+    "thriller": 12,
+    "crime": 13
   }
 }

@@ -22,7 +22,10 @@ public interface VideoRepo extends JpaRepository<Video, String> {
     @Query("SELECT v FROM Video v WHERE " +
             "LOWER(v.videoTitle) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(v.videoDescription) LIKE LOWER(CONCAT('%', :query, '%'))")
-    List<Video> findByQuery(String query);
+    List<Video> findAllByQuery(String query);
+
+    @Query("SELECT v FROM Video v LEFT JOIN FETCH v.videoTags vt WHERE LOWER(vt.catId) = :category")
+    List<Video> findAllByCategory(String category);
 //
 //    @Query("SELECT v FROM Video v LEFT JOIN FETCH v.videoCast")
 //    List<Video> findAllWithCast();

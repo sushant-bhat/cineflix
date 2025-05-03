@@ -21,7 +21,7 @@ public interface VideoService {
 
     VideoThumbnailDTO getVideoThumbnailById(String videoId) throws VideoAccessException;
 
-    List<VideoDTO> getModuleVideos(ModuleConfig heroModuleConfig) throws VideoAccessException;
+    List<VideoDTO> getModuleVideos(ModuleConfig moduleConfig) throws VideoAccessException;
 
     VideoDTO updateVideoInfo(VideoDTO videoDetails, String videoId) throws VideoUpdateException;
 

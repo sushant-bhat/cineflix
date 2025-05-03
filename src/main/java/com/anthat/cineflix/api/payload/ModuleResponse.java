@@ -13,5 +13,6 @@ import java.util.List;
 public class ModuleResponse {
     private String errorMessage;
     private String moduleId;
+    private ModuleMeta meta;
     private List<VideoDTO> videoList;
 }

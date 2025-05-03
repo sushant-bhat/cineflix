@@ -188,6 +188,7 @@ public class FileStorageVideoService implements VideoService {
         switch (moduleConfig.getModuleType()) {
             case HERO -> videoList = videoRepo.findById("4aac0b18-e68f-4bc4-9f18-475e17b7127d").stream().toList();
             case CONTINUE, RECOM -> videoList = videoRepo.findAll();
+            case SEARCH -> videoList = videoRepo.findByQuery(moduleConfig.getQuery());
         }
 
         return videoList.stream().map(VideoDTO::clone).toList();

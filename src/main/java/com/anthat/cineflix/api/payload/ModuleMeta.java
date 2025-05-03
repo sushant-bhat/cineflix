@@ -1,0 +1,10 @@
+package com.anthat.cineflix.api.payload;
+
+import lombok.Builder;
+import lombok.Getter;
+
+@Builder
+@Getter
+public class ModuleMeta {
+    private String query;
+}

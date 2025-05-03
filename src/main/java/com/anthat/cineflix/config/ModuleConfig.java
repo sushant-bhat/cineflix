@@ -13,4 +13,5 @@ import lombok.Setter;
 @Builder
 public class ModuleConfig {
     private ModuleType moduleType;
+    private String query;
 }

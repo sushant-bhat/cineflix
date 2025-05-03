@@ -2,6 +2,7 @@ package com.anthat.cineflix.api;
 
 import com.anthat.cineflix.api.payload.CategoryFeedResponse;
 import com.anthat.cineflix.api.payload.HomeFeedResponse;
+import com.anthat.cineflix.api.payload.ModuleMeta;
 import com.anthat.cineflix.api.payload.ModuleResponse;
 import com.anthat.cineflix.api.payload.SearchFeedResponse;
 import com.anthat.cineflix.config.ModuleConfig;
@@ -25,9 +26,11 @@ public class FeedController {
 
     private ModuleResponse getModuleResponse(ModuleConfig moduleConfig) {
         return ModuleResponse.builder()
-                        .moduleId(moduleConfig.getModuleType().name())
-                        .videoList(videoService.getModuleVideos(moduleConfig))
-                        .build();
+                .moduleId(moduleConfig.getModuleType().name())
+                .videoList(videoService.getModuleVideos(moduleConfig))
+                .meta(ModuleMeta.builder()
+                        .query(moduleConfig.getQuery()).build())
+                .build();
     }
 
     @GetMapping("/home")
@@ -54,7 +57,18 @@ public class FeedController {
 
     @GetMapping("/search")
     public ResponseEntity<SearchFeedResponse> getSearchVideosResult(@RequestParam String query) {
-        return ResponseEntity.ok(new SearchFeedResponse());
+        SearchFeedResponse searchFeedResponse = new SearchFeedResponse();
+        try {
+            ModuleConfig searchModuleConfig = ModuleConfig.builder()
+                    .moduleType(ModuleType.SEARCH)
+                    .query(query).build();
+            searchFeedResponse.addModule(getModuleResponse(searchModuleConfig));
+            return ResponseEntity.ok(searchFeedResponse);
+        } catch (Exception exp) {
+            searchFeedResponse.setErrorMessage("Something went wrong");
+            System.out.println(exp.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(searchFeedResponse);
+        }
     }
 
     @GetMapping("/browse/{catId}")

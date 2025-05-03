@@ -18,6 +18,11 @@ public interface VideoRepo extends JpaRepository<Video, String> {
     @Override
     @Query("SELECT v FROM Video v LEFT JOIN FETCH v.videoTags")
     List<Video> findAll();
+
+    @Query("SELECT v FROM Video v WHERE " +
+            "LOWER(v.videoTitle) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(v.videoDescription) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Video> findByQuery(String query);
 //
 //    @Query("SELECT v FROM Video v LEFT JOIN FETCH v.videoCast")
 //    List<Video> findAllWithCast();

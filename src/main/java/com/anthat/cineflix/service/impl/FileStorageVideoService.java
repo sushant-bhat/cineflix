@@ -186,7 +186,7 @@ public class FileStorageVideoService implements VideoService {
     public List<VideoDTO> getModuleVideos(ModuleConfig moduleConfig) {
         List<Video> videoList = new ArrayList<>();
         switch (moduleConfig.getModuleType()) {
-            case HERO -> videoList = videoRepo.findById("4aac0b18-e68f-4bc4-9f18-475e17b7127d").stream().toList();
+            case HERO -> videoList = videoRepo.findById("ee02d8cd-12d9-4c7f-8d5e-9e82b69cbd85").stream().toList();
             case CONTINUE, RECOM -> videoList = videoRepo.findAll();
             case SEARCH -> videoList = videoRepo.findAllByQuery(moduleConfig.getQuery());
             case CAT -> videoList = videoRepo.findAllByCategory(moduleConfig.getCategory());

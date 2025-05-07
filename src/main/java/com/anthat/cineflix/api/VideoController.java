@@ -2,13 +2,13 @@ package com.anthat.cineflix.api;
 
 import com.anthat.cineflix.api.payload.VideoResponse;
 import com.anthat.cineflix.dto.VideoDTO;
-import com.anthat.cineflix.dto.VideoStreamDTO;
 import com.anthat.cineflix.dto.VideoThumbnailDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoDeleteException;
 import com.anthat.cineflix.exception.VideoUpdateException;
-import com.anthat.cineflix.exception.VideoUploadException;
-import com.anthat.cineflix.service.VideoService;
+import com.anthat.cineflix.service.VideoMetaService;
+import com.anthat.cineflix.service.VideoOnboardService;
+import com.anthat.cineflix.service.VideoCDNService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -33,12 +33,15 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class VideoController {
 
-    private final VideoService videoService;
+    private final VideoCDNService videoCDNService;
+
+    private final VideoOnboardService videoOnboardService;
+    private final VideoMetaService videoMetaService;
 
     @GetMapping("/{videoId}")
     public ResponseEntity<VideoResponse> getVideoDetails(@PathVariable String videoId) {
         try {
-            VideoDTO videoMeta = videoService.getVideoInfoById(videoId);
+            VideoDTO videoMeta = videoMetaService.getVideoInfoById(videoId);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoMeta).build());
         } catch (VideoAccessException exp) {
             return ResponseEntity
@@ -54,7 +57,7 @@ public class VideoController {
     @GetMapping("/{videoId}/thumb")
     public ResponseEntity<Resource> getVideoThumbnail(@PathVariable String videoId) {
         try {
-            VideoThumbnailDTO thumbnail = videoService.getVideoThumbnailById(videoId);
+            VideoThumbnailDTO thumbnail = videoCDNService.getVideoThumbnailById(videoId);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
                     .body(thumbnail.getThumbnailResource());
@@ -73,7 +76,7 @@ public class VideoController {
     @GetMapping("/{videoId}/edit")
     public ResponseEntity<VideoResponse> getVideoDetailsForEdit(@PathVariable String videoId) {
         try {
-            VideoDTO videoMeta = videoService.getVideoInfoById(videoId);
+            VideoDTO videoMeta = videoMetaService.getVideoInfoById(videoId);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoMeta).build());
         } catch (VideoAccessException exp) {
             return ResponseEntity
@@ -90,7 +93,7 @@ public class VideoController {
     @PostMapping
     public ResponseEntity<VideoResponse> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("file") MultipartFile videoFile) {
         try {
-            VideoDTO videoDetails = videoService.uploadVideo(video, videoThumbnail, videoFile);
+            VideoDTO videoDetails = videoOnboardService.uploadVideo(video, videoThumbnail, videoFile);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoDetails).build());
         } catch (Exception exp) {
             // TODO: Add log
@@ -104,7 +107,7 @@ public class VideoController {
     @PutMapping("/{videoId}")
     public ResponseEntity<VideoResponse> updateVideo(@RequestBody VideoDTO videoDetails, @PathVariable String videoId) {
         try {
-            VideoDTO updatedVideoDetails = videoService.updateVideoInfo(videoDetails, videoId);
+            VideoDTO updatedVideoDetails = videoMetaService.updateVideoInfo(videoDetails, videoId);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(updatedVideoDetails).build());
         } catch (VideoUpdateException exp) {
             return ResponseEntity
@@ -121,7 +124,7 @@ public class VideoController {
     @DeleteMapping("/{videoId}")
     public ResponseEntity<VideoResponse> deleteVideo(@PathVariable String videoId) {
         try {
-            VideoDTO deletedVideoDetails = videoService.removeVideo(videoId);
+            VideoDTO deletedVideoDetails = videoOnboardService.removeVideo(videoId);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(deletedVideoDetails).build());
         } catch (VideoAccessException exp) {
             return ResponseEntity

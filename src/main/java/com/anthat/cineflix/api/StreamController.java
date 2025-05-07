@@ -2,7 +2,7 @@ package com.anthat.cineflix.api;
 
 import com.anthat.cineflix.dto.VideoStreamDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
-import com.anthat.cineflix.service.VideoService;
+import com.anthat.cineflix.service.VideoCDNService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class StreamController {
 
-    private final VideoService videoService;
+    private final VideoCDNService videoCDNService;
 
     @GetMapping("/{videoId}/stream")
     public ResponseEntity<Resource> getVideoForStreaming(@PathVariable String videoId, @RequestHeader(value = "Range", required = false) String range) {
         try {
-            VideoStreamDTO videoStream = videoService.getVideoStreamById(videoId, range);
+            VideoStreamDTO videoStream = videoCDNService.getVideoStreamById(videoId, range);
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                     .headers(videoStream.getHeaders())
                     .contentType(MediaType.parseMediaType(videoStream.getContentType()))
@@ -45,7 +45,7 @@ public class StreamController {
     @GetMapping(value = "/{videoId}/{filename:.+}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getVideoSegment(@PathVariable String videoId, @PathVariable String filename) {
         try {
-            VideoStreamDTO videoStreamDTO = videoService.fetchVideoSegment(videoId, filename);
+            VideoStreamDTO videoStreamDTO = videoCDNService.fetchVideoSegment(videoId, filename);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(videoStreamDTO.getContentType()))
                     .body(videoStreamDTO.getVideoResource());
@@ -63,7 +63,7 @@ public class StreamController {
     @GetMapping(value = "/{videoId}/{filename:.+}", produces = "application/vnd.apple.mpegurl")
     public ResponseEntity<Resource> getVideoManifest(@PathVariable String videoId, @PathVariable String filename) {
         try {
-            VideoStreamDTO videoStreamDTO = videoService.fetchManifest(videoId, filename);
+            VideoStreamDTO videoStreamDTO = videoCDNService.fetchManifest(videoId, filename);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(videoStreamDTO.getContentType()))
                     .body(videoStreamDTO.getVideoResource());

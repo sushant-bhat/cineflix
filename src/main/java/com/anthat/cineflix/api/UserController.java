@@ -3,7 +3,7 @@ package com.anthat.cineflix.api;
 import com.anthat.cineflix.api.payload.UserDetailsResponse;
 import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.security.JwtUtil;
-import com.anthat.cineflix.service.UserService;
+import com.anthat.cineflix.service.impl.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

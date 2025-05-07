@@ -1,6 +1,6 @@
 package com.anthat.cineflix.security;
 
-import com.anthat.cineflix.service.UserService;
+import com.anthat.cineflix.service.impl.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

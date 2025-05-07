@@ -10,7 +10,8 @@ import com.anthat.cineflix.api.payload.SearchFeedResponse;
 import com.anthat.cineflix.config.CategoriesConfig;
 import com.anthat.cineflix.config.ModuleConfig;
 import com.anthat.cineflix.config.ModuleType;
-import com.anthat.cineflix.service.VideoService;
+import com.anthat.cineflix.service.VideoCDNService;
+import com.anthat.cineflix.service.VideoMetaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +29,16 @@ import java.util.List;
 @CrossOrigin
 public class FeedController {
 
-    private final VideoService videoService;
+    private final VideoCDNService videoCDNService;
+
+    private final VideoMetaService videoMetaService;
 
     private final CategoriesConfig categoriesConfig;
 
     private ModuleResponse getModuleResponse(ModuleConfig moduleConfig) {
         return ModuleResponse.builder()
                 .moduleId(moduleConfig.getModuleType().name())
-                .videoList(videoService.getModuleVideos(moduleConfig))
+                .videoList(videoMetaService.getModuleVideos(moduleConfig))
                 .meta(ModuleMeta.builder()
                         .query(moduleConfig.getQuery())
                         .category(moduleConfig.getCategory()).build())

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class SearchFeedResponse {
+public class WatchListFeedResponse {
     private String errorMessage;
     private List<ModuleResponse> modules;
 

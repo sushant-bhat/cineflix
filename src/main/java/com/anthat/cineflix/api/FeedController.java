@@ -7,14 +7,17 @@ import com.anthat.cineflix.api.payload.HomeFeedResponse;
 import com.anthat.cineflix.api.payload.ModuleMeta;
 import com.anthat.cineflix.api.payload.ModuleResponse;
 import com.anthat.cineflix.api.payload.SearchFeedResponse;
+import com.anthat.cineflix.api.payload.WatchListFeedResponse;
 import com.anthat.cineflix.config.CategoriesConfig;
 import com.anthat.cineflix.config.ModuleConfig;
 import com.anthat.cineflix.config.ModuleType;
+import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.service.VideoCDNService;
 import com.anthat.cineflix.service.VideoMetaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -104,6 +107,23 @@ public class FeedController {
             categoryFeedResponse.setErrorMessage("Something went wrong");
             System.out.println(exp.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(categoryFeedResponse);
+        }
+
+    }
+
+    @GetMapping("/watchlist")
+    public ResponseEntity<WatchListFeedResponse> getWatchListVideosResult(@AuthenticationPrincipal UserDTO userDetails) {
+        WatchListFeedResponse watchListFeedResponse = new WatchListFeedResponse();
+        try {
+            ModuleConfig watchListModuleConfig = ModuleConfig.builder()
+                    .moduleType(ModuleType.WATCHLIST)
+                    .username(userDetails.getUsername()).build();
+            watchListFeedResponse.addModule(getModuleResponse(watchListModuleConfig));
+            return ResponseEntity.ok(watchListFeedResponse);
+        } catch (Exception exp) {
+            watchListFeedResponse.setErrorMessage("Something went wrong");
+            System.out.println(exp.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(watchListFeedResponse);
         }
 
     }

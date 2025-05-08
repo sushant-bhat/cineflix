@@ -5,6 +5,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
@@ -19,7 +20,9 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "videos")
@@ -35,6 +38,9 @@ public class Video {
     private String videoTitle;
 
     private String videoDescription;
+
+    @ManyToMany(mappedBy = "watchList")
+    private Set<User> usersWhoWatchListed = new HashSet<>();
 
     @OneToMany(mappedBy = "video", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<VideoTag> videoTags;

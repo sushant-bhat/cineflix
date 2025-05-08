@@ -15,4 +15,5 @@ public class ModuleConfig {
     private ModuleType moduleType;
     private String query;
     private String category;
+    private String username;
 }

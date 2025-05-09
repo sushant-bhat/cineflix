@@ -1,5 +1,7 @@
 package com.anthat.cineflix.service.impl;
 
+import com.anthat.cineflix.model.Video;
+import com.anthat.cineflix.repo.VideoRepo;
 import com.anthat.cineflix.service.TranscodeService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -18,16 +20,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class FFMpegTranscodeService implements TranscodeService {
-    private static class VariantInfo {
-        String resolution;
-        String bitrate;
-        String playlistPath;
 
-        public VariantInfo(String resolution, String bitrate, String playlistPath) {
-            this.resolution = resolution;
-            this.bitrate = bitrate;
-            this.playlistPath = playlistPath;
-        }
+    private final VideoRepo videoRepo;
+
+    public FFMpegTranscodeService(VideoRepo videoRepo) {
+        this.videoRepo = videoRepo;
     }
 
     private String generateHLSFilePrefix(String base, String resolution) {
@@ -36,12 +33,11 @@ public class FFMpegTranscodeService implements TranscodeService {
 
     @Override
     @Async
-    public void transcodeVideo(String sourceVideoUrl, String videoId, String destinationUrl) throws IOException {
+    public void transcodeVideo(String sourceVideoUrl, String videoId, Path destinationPath) throws IOException {
         List<String> resolutions = List.of("640x360", "854x480", "1280x720", "1920x1080");
         List<String> bitRates = List.of("500k", "800k", "1500k", "4000k");
 
         // /Users/s1b030z/Repo/cineflix/data/transcode/<id>
-        Path destinationPath = Paths.get(destinationUrl);
         if (!Files.exists(destinationPath)) {
             Files.createDirectories(destinationPath);
         }
@@ -94,11 +90,11 @@ public class FFMpegTranscodeService implements TranscodeService {
             }
         }
 
-        createMasterPlaylist(destinationUrl, resolutions);
+        createMasterPlaylist(videoId, destinationPath, resolutions);
     }
 
-    private void createMasterPlaylist(String outputDir, List<String> resolutions) throws IOException {
-        File masterPlaylistFile = new File(outputDir,  "master.m3u8");
+    private void createMasterPlaylist(String videoId, Path outputDir, List<String> resolutions) throws IOException {
+        Path masterPlaylistFilePath = outputDir.resolve( "master.m3u8");
         StringBuilder masterPlaylistContent = new StringBuilder("#EXTM3U\n");
 
         for (String resolution : resolutions) {
@@ -113,7 +109,12 @@ public class FFMpegTranscodeService implements TranscodeService {
                     .append("index_").append(resolution.split("x")[1]).append("p.m3u8\n");
         }
 
-        java.nio.file.Files.writeString(masterPlaylistFile.toPath(), masterPlaylistContent.toString());
+        java.nio.file.Files.writeString(masterPlaylistFilePath, masterPlaylistContent.toString());
+
+        Video video = videoRepo.findById(videoId).orElseThrow();
+        video.setTranscodedVideoManifestUrl(outputDir.toString());
+        video.setTranscodedVideoSegmentUrl(outputDir.toString());
+        videoRepo.save(video);
     }
 
     private String getApproximateBandwidth(String resolution) {

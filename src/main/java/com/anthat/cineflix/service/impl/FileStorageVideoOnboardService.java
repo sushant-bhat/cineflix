@@ -34,10 +34,9 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
 
     private final VideoRepo videoRepo;
 
-    private String copyFileToPath(MultipartFile file, String destination, String id) throws IOException {
+    private String copyFileToPath(MultipartFile file, Path uploadPath) throws IOException {
 
         // Create the upload directory if it doesn't exist
-        Path uploadPath = Paths.get(DIR, destination, id);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -61,12 +60,14 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
             String videoId = videoEntity.getVideoId();
 
             // Save thumbnail in a directory and update path in video thumbnail url
-            String thumbnailPath = copyFileToPath(videoThumbnail, "thumbnails", videoId);
+            Path destinationThumbnailFolderPath = Paths.get(DIR, "thumbnails", videoId);
+            String thumbnailPath = copyFileToPath(videoThumbnail, destinationThumbnailFolderPath);
             videoEntity.setThumbnailContentType(videoThumbnail.getContentType());
             videoEntity.setVideoThumbnailUrl(thumbnailPath);
 
             // Save file in a directory and update path in video url
-            String videoPath = copyFileToPath(videoFile, "videos", videoId);
+            Path destinationVideoFolderPath = Paths.get(DIR, "videos", videoId);
+            String videoPath = copyFileToPath(videoFile, destinationVideoFolderPath);
             videoEntity.setVideoContentType(videoFile.getContentType());
             videoEntity.setVideoUrl(videoPath);
 
@@ -74,9 +75,8 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
             videoRepo.save(videoEntity);
 
             // Now need to transcode the video and save different versions of the file using ffmpeg
-            // TODO: Make this maybe async sending a message back video is accepted and being uploaded
             Path destinationPath = Paths.get(DIR, "transcode", videoId);
-            transcodeService.transcodeVideo(videoPath, videoId, destinationPath.toString());
+            transcodeService.transcodeVideo(videoPath, videoId, destinationPath);
 
             return videoDetails;
         } catch (IOException e) {

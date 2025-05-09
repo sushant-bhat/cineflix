@@ -106,14 +106,15 @@ public class FileStorageVideoCDNService implements VideoCDNService {
         }
 
         return VideoThumbnailDTO.builder()
-                .thumbnailResource(new FileSystemResource(foundVideoMeta.getVideoThumbnailUrl()))
+                .thumbnailResource(new FileSystemResource(filePath))
                 .contentType(foundVideoMeta.getThumbnailContentType())
                 .build();
     }
 
     @Override
     public VideoStreamDTO fetchVideoSegment(String videoId, String fileName) {
-        Path segmentPath = Paths.get(DIR, "transcode", videoId, fileName);
+        Video foundVideo = videoRepo.findById(videoId).orElseThrow();
+        Path segmentPath = Paths.get(foundVideo.getTranscodedVideoSegmentUrl(), fileName);
         if (!Files.exists(segmentPath)) {
             throw new VideoAccessException("Requested video segment not present");
         }
@@ -125,7 +126,8 @@ public class FileStorageVideoCDNService implements VideoCDNService {
 
     @Override
     public VideoStreamDTO fetchManifest(String videoId, String fileName) {
-        Path manifestPath = Paths.get(DIR, "transcode", videoId, fileName);
+        Video foundVideo = videoRepo.findById(videoId).orElseThrow();
+        Path manifestPath = Paths.get(foundVideo.getTranscodedVideoManifestUrl(), fileName);
         if (!Files.exists(manifestPath)) {
             throw new VideoAccessException("Requested video manifest not present");
         }

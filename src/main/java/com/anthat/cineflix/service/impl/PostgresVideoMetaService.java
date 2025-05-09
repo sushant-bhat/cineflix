@@ -24,13 +24,17 @@ public class PostgresVideoMetaService implements VideoMetaService {
     private final UserRepo userRepo;
 
     @Override
-    public VideoDTO getVideoInfoById(String videoId) throws VideoAccessException {
+    public VideoDTO getVideoInfoById(String userName, String videoId) throws VideoAccessException {
         Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
         if (foundVideoMeta == null) {
             throw new VideoAccessException("Video not found");
         }
 
-        return VideoDTO.clone(foundVideoMeta);
+        VideoDTO updatedVideoDetails = VideoDTO.clone(foundVideoMeta);
+        Set<User> usersWatchListed = foundVideoMeta.getUsersWhoWatchListed();
+        updatedVideoDetails.setWatchListedByUser(usersWatchListed.stream().anyMatch(user -> userName.equalsIgnoreCase(user.getUserName())));
+
+        return updatedVideoDetails;
     }
 
     // TODO: Implement to update the thumbnail and video files as well

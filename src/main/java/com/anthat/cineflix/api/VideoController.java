@@ -1,6 +1,7 @@
 package com.anthat.cineflix.api;
 
 import com.anthat.cineflix.api.payload.VideoResponse;
+import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.dto.VideoDTO;
 import com.anthat.cineflix.dto.VideoThumbnailDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,9 +41,9 @@ public class VideoController {
     private final VideoMetaService videoMetaService;
 
     @GetMapping("/{videoId}")
-    public ResponseEntity<VideoResponse> getVideoDetails(@PathVariable String videoId) {
+    public ResponseEntity<VideoResponse> getVideoDetails(@AuthenticationPrincipal UserDTO userDetails, @PathVariable String videoId) {
         try {
-            VideoDTO videoMeta = videoMetaService.getVideoInfoById(videoId);
+            VideoDTO videoMeta = videoMetaService.getVideoInfoById(userDetails.getUsername(), videoId);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoMeta).build());
         } catch (VideoAccessException exp) {
             return ResponseEntity
@@ -74,9 +76,9 @@ public class VideoController {
 
     @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/{videoId}/edit")
-    public ResponseEntity<VideoResponse> getVideoDetailsForEdit(@PathVariable String videoId) {
+    public ResponseEntity<VideoResponse> getVideoDetailsForEdit(@AuthenticationPrincipal UserDTO userDetails, @PathVariable String videoId) {
         try {
-            VideoDTO videoMeta = videoMetaService.getVideoInfoById(videoId);
+            VideoDTO videoMeta = videoMetaService.getVideoInfoById(userDetails.getUsername(), videoId);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoMeta).build());
         } catch (VideoAccessException exp) {
             return ResponseEntity

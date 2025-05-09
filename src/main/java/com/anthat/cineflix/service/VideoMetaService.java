@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public interface VideoMetaService {
 
-    VideoDTO getVideoInfoById(String videoId) throws VideoAccessException;
+    VideoDTO getVideoInfoById(String userName, String videoId) throws VideoAccessException;
 
     VideoDTO updateVideoInfo(VideoDTO videoDetails, String videoId) throws VideoUpdateException;
 

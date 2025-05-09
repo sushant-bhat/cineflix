@@ -29,6 +29,8 @@ public class VideoDTO {
 
     private String videoDirector;
 
+    private boolean isWatchListedByUser;
+
     public static VideoDTO clone(Video videoMeta) {
         VideoDTO videoDTO = VideoDTO.builder()
                 .videoId(videoMeta.getVideoId())

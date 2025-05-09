@@ -29,6 +29,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Rest controller for API calls corresponding to actions performed by the user/system affecting video resource
+ */
 @RestController
 @RequestMapping("/api/v1/video")
 @CrossOrigin

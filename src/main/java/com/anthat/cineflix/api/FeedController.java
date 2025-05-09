@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Rest controller for API calls to get different kinds of feeds on the website
+ */
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin

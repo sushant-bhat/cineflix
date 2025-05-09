@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Rest controller for API calls corresponding to actions performed by the user affecting just the said user experience
+ */
 @RestController
 @RequestMapping("/api/v1/user")
 @CrossOrigin

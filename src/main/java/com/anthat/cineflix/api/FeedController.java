@@ -62,6 +62,9 @@ public class FeedController {
             ModuleConfig continueWatchModuleConfig = ModuleConfig.builder().moduleType(ModuleType.CONTINUE).username(userDetails.getUsername()).build();
             homeFeedResponse.addModule(getModuleResponse(continueWatchModuleConfig));
 
+            ModuleConfig watchListModuleConfig = ModuleConfig.builder().moduleType(ModuleType.WATCHLIST).username(userDetails.getUsername()).build();
+            homeFeedResponse.addModule(getModuleResponse(watchListModuleConfig));
+
             ModuleConfig recommendationModuleConfig = ModuleConfig.builder().moduleType(ModuleType.RECOM).build();
             homeFeedResponse.addModule(getModuleResponse(recommendationModuleConfig));
 

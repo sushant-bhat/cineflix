@@ -1,15 +1,10 @@
 package com.anthat.cineflix.service.impl;
 
-import com.anthat.cineflix.config.ModuleConfig;
-import com.anthat.cineflix.dto.VideoDTO;
 import com.anthat.cineflix.dto.VideoStreamDTO;
-import com.anthat.cineflix.dto.VideoThumbnailDTO;
+import com.anthat.cineflix.dto.VideoImageDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
-import com.anthat.cineflix.exception.VideoDeleteException;
-import com.anthat.cineflix.exception.VideoUploadException;
 import com.anthat.cineflix.model.Video;
 import com.anthat.cineflix.repo.VideoRepo;
-import com.anthat.cineflix.service.TranscodeService;
 import com.anthat.cineflix.service.VideoCDNService;
 import com.anthat.cineflix.util.AppConstants;
 import lombok.RequiredArgsConstructor;
@@ -94,7 +89,7 @@ public class FileStorageVideoCDNService implements VideoCDNService {
     }
 
     @Override
-    public VideoThumbnailDTO getVideoThumbnailById(String videoId) throws VideoAccessException {
+    public VideoImageDTO getVideoThumbnailById(String videoId) throws VideoAccessException {
         Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
         if (foundVideoMeta == null) {
             throw new VideoAccessException("Video record not found");
@@ -105,9 +100,27 @@ public class FileStorageVideoCDNService implements VideoCDNService {
             throw new VideoAccessException("Video thumbnail not found");
         }
 
-        return VideoThumbnailDTO.builder()
-                .thumbnailResource(new FileSystemResource(filePath))
+        return VideoImageDTO.builder()
+                .imageResource(new FileSystemResource(filePath))
                 .contentType(foundVideoMeta.getThumbnailContentType())
+                .build();
+    }
+
+    @Override
+    public VideoImageDTO getVideoCoverById(String videoId) throws VideoAccessException {
+        Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
+        if (foundVideoMeta == null) {
+            throw new VideoAccessException("Video record not found");
+        }
+
+        Path filePath = Paths.get(foundVideoMeta.getVideoCoverUrl());
+        if (!Files.exists(filePath)) {
+            throw new VideoAccessException("Video thumbnail not found");
+        }
+
+        return VideoImageDTO.builder()
+                .imageResource(new FileSystemResource(filePath))
+                .contentType(foundVideoMeta.getCoverContentType())
                 .build();
     }
 

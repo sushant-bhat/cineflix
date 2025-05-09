@@ -48,6 +48,10 @@ public class Video {
 
     private String videoThumbnailUrl;
 
+    private String coverContentType;
+
+    private String videoCoverUrl;
+
     private String videoContentType;
 
     private String videoUrl;

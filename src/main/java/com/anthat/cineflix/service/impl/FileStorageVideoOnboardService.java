@@ -52,7 +52,7 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
     }
 
     @Override
-    public VideoDTO uploadVideo(VideoDTO videoDetails, MultipartFile videoThumbnail, MultipartFile videoFile) throws VideoUploadException {
+    public VideoDTO uploadVideo(VideoDTO videoDetails, MultipartFile videoThumbnail, MultipartFile videoCover, MultipartFile videoFile) throws VideoUploadException {
         try {
             Video videoEntity = Video.clone(videoDetails);
             videoEntity.setVideoId(UUID.randomUUID().toString());
@@ -64,6 +64,12 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
             String thumbnailPath = copyFileToPath(videoThumbnail, destinationThumbnailFolderPath);
             videoEntity.setThumbnailContentType(videoThumbnail.getContentType());
             videoEntity.setVideoThumbnailUrl(thumbnailPath);
+
+            // Save cover in a directory and update path in video cover url
+            Path destinationCoverFolderPath = Paths.get(DIR, "covers", videoId);
+            String coverPath = copyFileToPath(videoCover, destinationCoverFolderPath);
+            videoEntity.setCoverContentType(videoCover.getContentType());
+            videoEntity.setVideoCoverUrl(coverPath);
 
             // Save file in a directory and update path in video url
             Path destinationVideoFolderPath = Paths.get(DIR, "videos", videoId);

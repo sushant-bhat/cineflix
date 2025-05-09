@@ -12,7 +12,7 @@ import org.springframework.core.io.Resource;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VideoThumbnailDTO {
-    private Resource thumbnailResource;
+public class VideoImageDTO {
+    private Resource imageResource;
     private String contentType;
 }

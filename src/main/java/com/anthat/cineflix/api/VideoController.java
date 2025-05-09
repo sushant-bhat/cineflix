@@ -5,7 +5,7 @@ import com.anthat.cineflix.api.payload.VideoResponse;
 import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.dto.VideoDTO;
 import com.anthat.cineflix.dto.VideoProgressDTO;
-import com.anthat.cineflix.dto.VideoThumbnailDTO;
+import com.anthat.cineflix.dto.VideoImageDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoDeleteException;
 import com.anthat.cineflix.exception.VideoUpdateException;
@@ -65,10 +65,28 @@ public class VideoController {
     @GetMapping("/{videoId}/thumb")
     public ResponseEntity<Resource> getVideoThumbnail(@PathVariable String videoId) {
         try {
-            VideoThumbnailDTO thumbnail = videoCDNService.getVideoThumbnailById(videoId);
+            VideoImageDTO thumbnail = videoCDNService.getVideoThumbnailById(videoId);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
-                    .body(thumbnail.getThumbnailResource());
+                    .body(thumbnail.getImageResource());
+        } catch (VideoAccessException exp) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (Exception exp) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
+    @GetMapping("/{videoId}/cover")
+    public ResponseEntity<Resource> getVideoCover(@PathVariable String videoId) {
+        try {
+            VideoImageDTO thumbnail = videoCDNService.getVideoCoverById(videoId);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
+                    .body(thumbnail.getImageResource());
         } catch (VideoAccessException exp) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -99,9 +117,9 @@ public class VideoController {
 
     @PreAuthorize("hasRole('CREATOR')")
     @PostMapping
-    public ResponseEntity<VideoResponse> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("file") MultipartFile videoFile) {
+    public ResponseEntity<VideoResponse> uploadVideo(@RequestPart VideoDTO video, @RequestPart("thumbnail") MultipartFile videoThumbnail, @RequestPart("cover") MultipartFile videoCover, @RequestPart("file") MultipartFile videoFile) {
         try {
-            VideoDTO videoDetails = videoOnboardService.uploadVideo(video, videoThumbnail, videoFile);
+            VideoDTO videoDetails = videoOnboardService.uploadVideo(video, videoThumbnail, videoCover, videoFile);
             return ResponseEntity.ok(VideoResponse.builder().videoMeta(videoDetails).build());
         } catch (Exception exp) {
             // TODO: Add log

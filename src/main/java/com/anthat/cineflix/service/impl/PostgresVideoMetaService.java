@@ -2,17 +2,22 @@ package com.anthat.cineflix.service.impl;
 
 import com.anthat.cineflix.config.ModuleConfig;
 import com.anthat.cineflix.dto.VideoDTO;
+import com.anthat.cineflix.dto.VideoProgressDTO;
 import com.anthat.cineflix.dto.WatchListDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.model.User;
 import com.anthat.cineflix.model.Video;
+import com.anthat.cineflix.model.VideoProgress;
 import com.anthat.cineflix.repo.UserRepo;
+import com.anthat.cineflix.repo.VideoProgressRepo;
 import com.anthat.cineflix.repo.VideoRepo;
 import com.anthat.cineflix.service.VideoMetaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +27,8 @@ public class PostgresVideoMetaService implements VideoMetaService {
     private final VideoRepo videoRepo;
 
     private final UserRepo userRepo;
+
+    private final VideoProgressRepo videoProgressRepo;
 
     @Override
     public VideoDTO getVideoInfoById(String userName, String videoId) throws VideoAccessException {
@@ -55,7 +62,8 @@ public class PostgresVideoMetaService implements VideoMetaService {
         List<Video> videoList = new ArrayList<>();
         switch (moduleConfig.getModuleType()) {
             case HERO -> videoList = videoRepo.findById("ee02d8cd-12d9-4c7f-8d5e-9e82b69cbd85").stream().toList();
-            case CONTINUE, RECOM -> videoList = videoRepo.findAll();
+            case CONTINUE -> videoList = getPendingVideos(moduleConfig.getUsername());
+            case RECOM -> videoList = videoRepo.findAll();
             case SEARCH -> videoList = videoRepo.findAllByQuery(moduleConfig.getQuery());
             case CAT -> videoList = videoRepo.findAllByCategory(moduleConfig.getCategory());
             case WATCHLIST -> {
@@ -64,6 +72,14 @@ public class PostgresVideoMetaService implements VideoMetaService {
         }
 
         return videoList.stream().map(VideoDTO::clone).toList();
+    }
+
+    private List<Video> getPendingVideos(String userName) {
+        List<VideoProgress> videoProgressList = videoProgressRepo.findAllByUserName(userName);
+        if (CollectionUtils.isEmpty(videoProgressList)) {
+            return Collections.emptyList();
+        }
+        return videoProgressList.stream().filter(vp -> vp.getLastWatched() < vp.getDuration()).map(VideoProgress::getVideo).toList();
     }
 
     @Override
@@ -113,5 +129,36 @@ public class PostgresVideoMetaService implements VideoMetaService {
         }
 
         return userWatchlist.stream().map(VideoDTO::clone).toList();
+    }
+
+    @Override
+    public VideoProgressDTO updateVideoProgress(VideoProgressDTO videoProgressDetails) {
+        VideoProgress foundVideoProgress = videoProgressRepo.findByUserNameAndVideoId(videoProgressDetails.getUserName(), videoProgressDetails.getVideoId())
+                .orElseGet(() -> {
+                    User foundUser = userRepo.findById(videoProgressDetails.getUserName()).orElseThrow();
+                    Video foundVideo = videoRepo.findById(videoProgressDetails.getVideoId()).orElseThrow();
+                    return VideoProgress.builder().user(foundUser).video(foundVideo).build();
+                });
+
+        foundVideoProgress.setLastWatched(videoProgressDetails.getLastWatched());
+        foundVideoProgress.setDuration(videoProgressDetails.getDuration());
+
+        videoProgressRepo.save(foundVideoProgress);
+
+        return videoProgressDetails;
+    }
+
+    @Override
+    public VideoProgressDTO getVideoProgress(String userName, String videoId) {
+        VideoProgress videoProgress = videoProgressRepo.findByUserNameAndVideoId(userName, videoId)
+                .orElseGet(() -> VideoProgress.builder()
+                        .lastWatched(0L)
+                        .duration(1L).build());
+
+        return VideoProgressDTO.builder()
+                .userName(userName)
+                .videoId(videoId)
+                .lastWatched(videoProgress.getLastWatched())
+                .duration(videoProgress.getDuration()).build();
     }
 }

@@ -9,5 +9,9 @@ public class AppConstants {
 
     public static final String QUERY_FIND_ALL_BY_CATEGORY = "SELECT v FROM Video v LEFT JOIN FETCH v.videoTags vt WHERE LOWER(vt.catId) = :category";
 
+    public static final String QUERY_FIND_VIDEO_PROG_BY_USER_AND_VIDEO = "SELECT v FROM VideoProgress v WHERE v.user.userName = :username AND v.video.videoId = :videoId";
+
+    public static final String QUERY_FIND_VIDEO_PROG_BY_USER = "SELECT v FROM VideoProgress v WHERE v.user.userName = :username";
+
 
 }

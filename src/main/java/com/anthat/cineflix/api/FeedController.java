@@ -52,14 +52,14 @@ public class FeedController {
     }
 
     @GetMapping("/home")
-    public ResponseEntity<HomeFeedResponse> getHomeFeed() {
+    public ResponseEntity<HomeFeedResponse> getHomeFeed(@AuthenticationPrincipal UserDTO userDetails) {
         HomeFeedResponse homeFeedResponse = new HomeFeedResponse();
 
         try {
             ModuleConfig heroModuleConfig = ModuleConfig.builder().moduleType(ModuleType.HERO).build();
             homeFeedResponse.addModule(getModuleResponse(heroModuleConfig));
 
-            ModuleConfig continueWatchModuleConfig = ModuleConfig.builder().moduleType(ModuleType.CONTINUE).build();
+            ModuleConfig continueWatchModuleConfig = ModuleConfig.builder().moduleType(ModuleType.CONTINUE).username(userDetails.getUsername()).build();
             homeFeedResponse.addModule(getModuleResponse(continueWatchModuleConfig));
 
             ModuleConfig recommendationModuleConfig = ModuleConfig.builder().moduleType(ModuleType.RECOM).build();

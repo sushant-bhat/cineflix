@@ -23,4 +23,7 @@ public interface VideoRepo extends JpaRepository<Video, String> {
 
     @Query(QUERY_FIND_ALL_BY_CATEGORY)
     List<Video> findAllByCategory(String category);
+
+    @Query("SELECT v FROM Video v LEFT JOIN FETCH v.videoTags")
+    List<Video> findAllPending();
 }

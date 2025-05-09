@@ -1,8 +1,10 @@
 package com.anthat.cineflix.api;
 
+import com.anthat.cineflix.api.payload.VideoProgressResponse;
 import com.anthat.cineflix.api.payload.VideoResponse;
 import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.dto.VideoDTO;
+import com.anthat.cineflix.dto.VideoProgressDTO;
 import com.anthat.cineflix.dto.VideoThumbnailDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoDeleteException;
@@ -41,6 +43,7 @@ public class VideoController {
     private final VideoCDNService videoCDNService;
 
     private final VideoOnboardService videoOnboardService;
+
     private final VideoMetaService videoMetaService;
 
     @GetMapping("/{videoId}")
@@ -140,5 +143,24 @@ public class VideoController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(VideoResponse.builder().errorMessage("Something went wrong when deleting the video").build());
         }
+    }
+
+    @PostMapping("/{videoId}/progress")
+    public ResponseEntity<VideoProgressResponse> updateVideoProgressForUser(@AuthenticationPrincipal UserDTO userDetails, @PathVariable String videoId, @RequestBody VideoProgressDTO videoProgressDetails) {
+        videoProgressDetails.setUserName(userDetails.getUsername());
+        videoProgressDetails.setVideoId(videoId);
+
+        VideoProgressDTO updatedVideoProgressDetails = videoMetaService.updateVideoProgress(videoProgressDetails);
+
+        return ResponseEntity.ok(VideoProgressResponse.builder()
+                .videoProgressDetails(updatedVideoProgressDetails).build());
+    }
+
+    @GetMapping("/{videoId}/progress")
+    public ResponseEntity<VideoProgressResponse> getVideoProgressForUser(@AuthenticationPrincipal UserDTO userDetails, @PathVariable String videoId) {
+        VideoProgressDTO videoProgressDetails = videoMetaService.getVideoProgress(userDetails.getUsername(), videoId);
+
+        return ResponseEntity.ok(VideoProgressResponse.builder()
+                .videoProgressDetails(videoProgressDetails).build());
     }
 }

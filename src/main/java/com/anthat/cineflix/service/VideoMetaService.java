@@ -2,6 +2,7 @@ package com.anthat.cineflix.service;
 
 import com.anthat.cineflix.config.ModuleConfig;
 import com.anthat.cineflix.dto.VideoDTO;
+import com.anthat.cineflix.dto.VideoProgressDTO;
 import com.anthat.cineflix.dto.WatchListDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoUpdateException;
@@ -23,4 +24,8 @@ public interface VideoMetaService {
     WatchListDTO removeWatchListVideo(String userName, String videoId);
 
     List<VideoDTO> getWatchListVideos(String userName);
+
+    VideoProgressDTO updateVideoProgress(VideoProgressDTO videoProgressDetails);
+
+    VideoProgressDTO getVideoProgress(String userName, String videoId);
 }

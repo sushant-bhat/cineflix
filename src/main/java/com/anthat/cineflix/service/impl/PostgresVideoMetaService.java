@@ -13,6 +13,8 @@ import com.anthat.cineflix.repo.VideoProgressRepo;
 import com.anthat.cineflix.repo.VideoRepo;
 import com.anthat.cineflix.service.VideoMetaService;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -24,6 +26,9 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class PostgresVideoMetaService implements VideoMetaService {
+    @Value("${app.new.arrivals.time}")
+    private long newArrivalsTime;
+
     private final VideoRepo videoRepo;
 
     private final UserRepo userRepo;
@@ -61,7 +66,7 @@ public class PostgresVideoMetaService implements VideoMetaService {
     public List<VideoDTO> getModuleVideos(ModuleConfig moduleConfig) {
         List<Video> videoList = new ArrayList<>();
         switch (moduleConfig.getModuleType()) {
-            case HERO -> videoList = videoRepo.findById("ee02d8cd-12d9-4c7f-8d5e-9e82b69cbd85").stream().toList();
+            case HERO -> videoList = videoRepo.findAllNewArrivals(System.currentTimeMillis() - newArrivalsTime);
             case CONTINUE -> videoList = getPendingVideos(moduleConfig.getUsername());
             case RECOM -> videoList = videoRepo.findAll();
             case SEARCH -> videoList = videoRepo.findAllByQuery(moduleConfig.getQuery());

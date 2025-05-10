@@ -9,6 +9,7 @@ import java.util.List;
 
 import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_ALL_BY_CATEGORY;
 import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_ALL_BY_QUERY;
+import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_ALL_VIDEO_NEW_ARRIVALS;
 import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_ALL_WITH_TAGS;
 
 @Repository
@@ -24,6 +25,6 @@ public interface VideoRepo extends JpaRepository<Video, String> {
     @Query(QUERY_FIND_ALL_BY_CATEGORY)
     List<Video> findAllByCategory(String category);
 
-    @Query("SELECT v FROM Video v LEFT JOIN FETCH v.videoTags")
-    List<Video> findAllPending();
+    @Query(QUERY_FIND_ALL_VIDEO_NEW_ARRIVALS)
+    List<Video> findAllNewArrivals(long startTime);
 }

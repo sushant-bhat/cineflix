@@ -60,6 +60,8 @@ public class Video {
 
     private String transcodedVideoManifestUrl;
 
+    private Long createdAt = System.currentTimeMillis();
+
     public static Video clone(VideoDTO videoDTO) {
         Video video = Video.builder()
                 .videoTitle(videoDTO.getVideoTitle())

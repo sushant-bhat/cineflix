@@ -77,6 +77,8 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
             videoEntity.setVideoContentType(videoFile.getContentType());
             videoEntity.setVideoUrl(videoPath);
 
+            videoEntity.setCreatedAt(System.currentTimeMillis());
+
             // Save video object into postgres
             videoRepo.save(videoEntity);
 

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -64,16 +65,14 @@ public class PostgresVideoMetaService implements VideoMetaService {
 
     @Override
     public List<VideoDTO> getModuleVideos(ModuleConfig moduleConfig) {
-        List<Video> videoList = new ArrayList<>();
+        Collection<Video> videoList = new ArrayList<>();
         switch (moduleConfig.getModuleType()) {
             case HERO -> videoList = videoRepo.findAllNewArrivals(System.currentTimeMillis() - newArrivalsTime);
             case CONTINUE -> videoList = getPendingVideos(moduleConfig.getUsername());
             case RECOM -> videoList = videoRepo.findAll();
             case SEARCH -> videoList = videoRepo.findAllByQuery(moduleConfig.getQuery());
             case CAT -> videoList = videoRepo.findAllByCategory(moduleConfig.getCategory());
-            case WATCHLIST -> {
-                return getWatchListVideos(moduleConfig.getUsername());
-            }
+            case WATCHLIST -> videoList = getWatchListVideos(moduleConfig.getUsername());
         }
 
         return videoList.stream().map(VideoDTO::clone).toList();
@@ -123,17 +122,16 @@ public class PostgresVideoMetaService implements VideoMetaService {
                 .videoId(foundVideo.getVideoId()).build();
     }
 
-    @Override
-    public List<VideoDTO> getWatchListVideos(String userName) {
+    private Set<Video> getWatchListVideos(String userName) {
         User foundUser = userRepo.findById(userName).orElseThrow();
 
         Set<Video> userWatchlist = foundUser.getWatchList();
         if (userWatchlist == null) {
             System.out.println("No watch list for the user, throw exception in this case?");
-            return null;
+            return Collections.emptySet();
         }
 
-        return userWatchlist.stream().map(VideoDTO::clone).toList();
+        return userWatchlist;
     }
 
     @Override

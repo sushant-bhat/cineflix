@@ -23,8 +23,6 @@ public interface VideoMetaService {
 
     WatchListDTO removeWatchListVideo(String userName, String videoId);
 
-    List<VideoDTO> getWatchListVideos(String userName);
-
     VideoProgressDTO updateVideoProgress(VideoProgressDTO videoProgressDetails);
 
     VideoProgressDTO getVideoProgress(String userName, String videoId);

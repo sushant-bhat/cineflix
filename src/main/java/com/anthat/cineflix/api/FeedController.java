@@ -35,8 +35,6 @@ import java.util.List;
 @CrossOrigin
 public class FeedController {
 
-    private final VideoCDNService videoCDNService;
-
     private final VideoMetaService videoMetaService;
 
     private final CategoriesConfig categoriesConfig;
@@ -49,6 +47,11 @@ public class FeedController {
                         .query(moduleConfig.getQuery())
                         .category(moduleConfig.getCategory()).build())
                 .build();
+    }
+
+    @GetMapping("/live")
+    public ResponseEntity<String> giveServerLiveStatus() {
+        return ResponseEntity.ok("Running");
     }
 
     @GetMapping("/home")

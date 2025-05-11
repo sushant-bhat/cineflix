@@ -45,28 +45,15 @@ public class StreamController {
         }
     }
 
-    @GetMapping(value = "/{videoId}/{filename:.+}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Resource> getVideoSegment(@PathVariable String videoId, @PathVariable String filename) {
+    @GetMapping(value = "/{videoId}/{filename:.+}")
+    public ResponseEntity<Resource> getVideoStreamingFile(@PathVariable String videoId, @PathVariable String filename) {
         try {
-            VideoStreamDTO videoStreamDTO = videoCDNService.fetchVideoSegment(videoId, filename);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(videoStreamDTO.getContentType()))
-                    .body(videoStreamDTO.getVideoResource());
-        } catch (VideoAccessException exp) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (Exception exp) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-    }
-
-    @GetMapping(value = "/{videoId}/{filename:.+}", produces = "application/vnd.apple.mpegurl")
-    public ResponseEntity<Resource> getVideoManifest(@PathVariable String videoId, @PathVariable String filename) {
-        try {
-            VideoStreamDTO videoStreamDTO = videoCDNService.fetchManifest(videoId, filename);
+            VideoStreamDTO videoStreamDTO;
+            if (filename.endsWith(".m3u8")) {
+                videoStreamDTO = videoCDNService.fetchManifest(videoId, filename);
+            } else {
+                videoStreamDTO = videoCDNService.fetchVideoSegment(videoId, filename);
+            }
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(videoStreamDTO.getContentType()))
                     .body(videoStreamDTO.getVideoResource());

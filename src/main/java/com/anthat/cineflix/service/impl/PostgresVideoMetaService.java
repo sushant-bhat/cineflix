@@ -82,7 +82,7 @@ public class PostgresVideoMetaService implements VideoMetaService {
         if (CollectionUtils.isEmpty(videoProgressList)) {
             return Collections.emptyList();
         }
-        return videoProgressList.stream().filter(vp -> vp.getLastWatched() < vp.getDuration()).map(VideoProgress::getVideo).toList();
+        return videoProgressList.stream().filter(vp -> vp.getDuration() != null && vp.getLastWatched() < vp.getDuration()).map(VideoProgress::getVideo).toList();
     }
 
     @Override

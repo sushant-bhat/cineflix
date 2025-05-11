@@ -9,11 +9,10 @@ import com.anthat.cineflix.model.User;
 import com.anthat.cineflix.model.Video;
 import com.anthat.cineflix.model.VideoProgress;
 import com.anthat.cineflix.repo.UserRepo;
-import com.anthat.cineflix.repo.VideoProgressRepo;
-import com.anthat.cineflix.repo.VideoRepo;
+import com.anthat.cineflix.repo.VideoProgressSQLRepo;
+import com.anthat.cineflix.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.VideoMetaService;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,15 +29,15 @@ public class PostgresVideoMetaService implements VideoMetaService {
     @Value("${app.new.arrivals.time}")
     private long newArrivalsTime;
 
-    private final VideoRepo videoRepo;
+    private final VideoSQLRepo videoSQLRepo;
 
     private final UserRepo userRepo;
 
-    private final VideoProgressRepo videoProgressRepo;
+    private final VideoProgressSQLRepo videoProgressSQLRepo;
 
     @Override
     public VideoDTO getVideoInfoById(String userName, String videoId) throws VideoAccessException {
-        Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
+        Video foundVideoMeta = videoSQLRepo.findById(videoId).orElse(null);
         if (foundVideoMeta == null) {
             throw new VideoAccessException("Video not found");
         }
@@ -53,13 +52,13 @@ public class PostgresVideoMetaService implements VideoMetaService {
     // TODO: Implement to update the thumbnail and video files as well
     @Override
     public VideoDTO updateVideoInfo(VideoDTO videoDetails, String videoId) {
-        Video foundVideo = videoRepo.findById(videoId).orElse(null);
+        Video foundVideo = videoSQLRepo.findById(videoId).orElse(null);
         if (foundVideo == null) {
             throw new VideoAccessException("Requested video not found");
         }
 
         foundVideo.updateFromDTO(videoDetails);
-        videoRepo.save(foundVideo);
+        videoSQLRepo.save(foundVideo);
         return videoDetails;
     }
 
@@ -67,11 +66,11 @@ public class PostgresVideoMetaService implements VideoMetaService {
     public List<VideoDTO> getModuleVideos(ModuleConfig moduleConfig) {
         Collection<Video> videoList = new ArrayList<>();
         switch (moduleConfig.getModuleType()) {
-            case HERO -> videoList = videoRepo.findAllNewArrivals(System.currentTimeMillis() - newArrivalsTime);
+            case HERO -> videoList = videoSQLRepo.findAllNewArrivals(System.currentTimeMillis() - newArrivalsTime);
             case CONTINUE -> videoList = getPendingVideos(moduleConfig.getUsername());
-            case RECOM -> videoList = videoRepo.findAll();
-            case SEARCH -> videoList = videoRepo.findAllByQuery(moduleConfig.getQuery());
-            case CAT -> videoList = videoRepo.findAllByCategory(moduleConfig.getCategory());
+            case RECOM -> videoList = videoSQLRepo.findAll();
+            case SEARCH -> videoList = videoSQLRepo.findAllByQuery(moduleConfig.getQuery());
+            case CAT -> videoList = videoSQLRepo.findAllByCategory(moduleConfig.getCategory());
             case WATCHLIST -> videoList = getWatchListVideos(moduleConfig.getUsername());
         }
 
@@ -79,7 +78,7 @@ public class PostgresVideoMetaService implements VideoMetaService {
     }
 
     private List<Video> getPendingVideos(String userName) {
-        List<VideoProgress> videoProgressList = videoProgressRepo.findAllByUserName(userName);
+        List<VideoProgress> videoProgressList = videoProgressSQLRepo.findAllByUserName(userName);
         if (CollectionUtils.isEmpty(videoProgressList)) {
             return Collections.emptyList();
         }
@@ -89,7 +88,7 @@ public class PostgresVideoMetaService implements VideoMetaService {
     @Override
     public WatchListDTO watchListVideo(String userName, String videoId) throws VideoAccessException {
         User foundUser = userRepo.findById(userName).orElseThrow();
-        Video foundVideo = videoRepo.findById(videoId).orElseThrow();
+        Video foundVideo = videoSQLRepo.findById(videoId).orElseThrow();
 
         Set<Video> userWatchlist = foundUser.getWatchList();
         if (userWatchlist.contains(foundVideo)) {
@@ -107,7 +106,7 @@ public class PostgresVideoMetaService implements VideoMetaService {
     @Override
     public WatchListDTO removeWatchListVideo(String userName, String videoId) {
         User foundUser = userRepo.findById(userName).orElseThrow();
-        Video foundVideo = videoRepo.findById(videoId).orElseThrow();
+        Video foundVideo = videoSQLRepo.findById(videoId).orElseThrow();
 
         Set<Video> userWatchlist = foundUser.getWatchList();
         if (!userWatchlist.contains(foundVideo)) {
@@ -136,24 +135,24 @@ public class PostgresVideoMetaService implements VideoMetaService {
 
     @Override
     public VideoProgressDTO updateVideoProgress(VideoProgressDTO videoProgressDetails) {
-        VideoProgress foundVideoProgress = videoProgressRepo.findByUserNameAndVideoId(videoProgressDetails.getUserName(), videoProgressDetails.getVideoId())
+        VideoProgress foundVideoProgress = videoProgressSQLRepo.findByUserNameAndVideoId(videoProgressDetails.getUserName(), videoProgressDetails.getVideoId())
                 .orElseGet(() -> {
                     User foundUser = userRepo.findById(videoProgressDetails.getUserName()).orElseThrow();
-                    Video foundVideo = videoRepo.findById(videoProgressDetails.getVideoId()).orElseThrow();
+                    Video foundVideo = videoSQLRepo.findById(videoProgressDetails.getVideoId()).orElseThrow();
                     return VideoProgress.builder().user(foundUser).video(foundVideo).build();
                 });
 
         foundVideoProgress.setLastWatched(videoProgressDetails.getLastWatched());
         foundVideoProgress.setDuration(videoProgressDetails.getDuration());
 
-        videoProgressRepo.save(foundVideoProgress);
+        videoProgressSQLRepo.save(foundVideoProgress);
 
         return videoProgressDetails;
     }
 
     @Override
     public VideoProgressDTO getVideoProgress(String userName, String videoId) {
-        VideoProgress videoProgress = videoProgressRepo.findByUserNameAndVideoId(userName, videoId)
+        VideoProgress videoProgress = videoProgressSQLRepo.findByUserNameAndVideoId(userName, videoId)
                 .orElseGet(() -> VideoProgress.builder()
                         .lastWatched(0L)
                         .duration(1L).build());

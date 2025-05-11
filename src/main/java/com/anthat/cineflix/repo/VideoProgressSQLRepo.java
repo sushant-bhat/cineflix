@@ -12,7 +12,7 @@ import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_VIDEO_PROG_BY_USE
 import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_VIDEO_PROG_BY_USER_AND_VIDEO;
 
 @Repository
-public interface VideoProgressRepo extends JpaRepository<VideoProgress, String> {
+public interface VideoProgressSQLRepo extends JpaRepository<VideoProgress, String> {
     @Query(QUERY_FIND_VIDEO_PROG_BY_USER_AND_VIDEO)
     Optional<VideoProgress> findByUserNameAndVideoId(String username, String videoId);
 

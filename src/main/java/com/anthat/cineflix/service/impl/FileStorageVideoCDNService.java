@@ -4,7 +4,7 @@ import com.anthat.cineflix.dto.VideoStreamDTO;
 import com.anthat.cineflix.dto.VideoImageDTO;
 import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.model.Video;
-import com.anthat.cineflix.repo.VideoRepo;
+import com.anthat.cineflix.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.VideoCDNService;
 import com.anthat.cineflix.util.AppConstants;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +29,14 @@ import java.nio.file.Paths;
 public class FileStorageVideoCDNService implements VideoCDNService {
     private static final Logger LOGGER = LogManager.getLogger(FileStorageVideoCDNService.class);
 
-    private final VideoRepo videoRepo;
+    private final VideoSQLRepo videoSQLRepo;
 
     @Value("${app.upload.dir}")
     private String DIR;
 
     @Override
     public VideoStreamDTO getVideoStreamById(String videoId, String range) throws VideoAccessException {
-        Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
+        Video foundVideoMeta = videoSQLRepo.findById(videoId).orElse(null);
         if (foundVideoMeta == null) {
             throw new VideoAccessException("Video record not found");
         }
@@ -90,7 +90,7 @@ public class FileStorageVideoCDNService implements VideoCDNService {
 
     @Override
     public VideoImageDTO getVideoThumbnailById(String videoId) throws VideoAccessException {
-        Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
+        Video foundVideoMeta = videoSQLRepo.findById(videoId).orElse(null);
         if (foundVideoMeta == null) {
             throw new VideoAccessException("Video record not found");
         }
@@ -108,7 +108,7 @@ public class FileStorageVideoCDNService implements VideoCDNService {
 
     @Override
     public VideoImageDTO getVideoCoverById(String videoId) throws VideoAccessException {
-        Video foundVideoMeta = videoRepo.findById(videoId).orElse(null);
+        Video foundVideoMeta = videoSQLRepo.findById(videoId).orElse(null);
         if (foundVideoMeta == null) {
             throw new VideoAccessException("Video record not found");
         }
@@ -126,7 +126,7 @@ public class FileStorageVideoCDNService implements VideoCDNService {
 
     @Override
     public VideoStreamDTO fetchVideoSegment(String videoId, String fileName) {
-        Video foundVideo = videoRepo.findById(videoId).orElseThrow();
+        Video foundVideo = videoSQLRepo.findById(videoId).orElseThrow();
         Path segmentPath = Paths.get(foundVideo.getTranscodedVideoSegmentUrl(), fileName);
         if (!Files.exists(segmentPath)) {
             throw new VideoAccessException("Requested video segment not present");
@@ -139,7 +139,7 @@ public class FileStorageVideoCDNService implements VideoCDNService {
 
     @Override
     public VideoStreamDTO fetchManifest(String videoId, String fileName) {
-        Video foundVideo = videoRepo.findById(videoId).orElseThrow();
+        Video foundVideo = videoSQLRepo.findById(videoId).orElseThrow();
         Path manifestPath = Paths.get(foundVideo.getTranscodedVideoManifestUrl(), fileName);
         if (!Files.exists(manifestPath)) {
             throw new VideoAccessException("Requested video manifest not present");

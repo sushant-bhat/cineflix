@@ -1,16 +1,14 @@
 package com.anthat.cineflix.service.impl;
 
 import com.anthat.cineflix.model.Video;
-import com.anthat.cineflix.repo.VideoRepo;
+import com.anthat.cineflix.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.TranscodeService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -21,10 +19,10 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class FFMpegTranscodeService implements TranscodeService {
 
-    private final VideoRepo videoRepo;
+    private final VideoSQLRepo videoSQLRepo;
 
-    public FFMpegTranscodeService(VideoRepo videoRepo) {
-        this.videoRepo = videoRepo;
+    public FFMpegTranscodeService(VideoSQLRepo videoSQLRepo) {
+        this.videoSQLRepo = videoSQLRepo;
     }
 
     private String generateHLSFilePrefix(String base, String resolution) {
@@ -111,10 +109,10 @@ public class FFMpegTranscodeService implements TranscodeService {
 
         java.nio.file.Files.writeString(masterPlaylistFilePath, masterPlaylistContent.toString());
 
-        Video video = videoRepo.findById(videoId).orElseThrow();
+        Video video = videoSQLRepo.findById(videoId).orElseThrow();
         video.setTranscodedVideoManifestUrl(outputDir.toString());
         video.setTranscodedVideoSegmentUrl(outputDir.toString());
-        videoRepo.save(video);
+        videoSQLRepo.save(video);
     }
 
     private String getApproximateBandwidth(String resolution) {

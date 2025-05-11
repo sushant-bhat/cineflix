@@ -5,7 +5,7 @@ import com.anthat.cineflix.exception.VideoAccessException;
 import com.anthat.cineflix.exception.VideoDeleteException;
 import com.anthat.cineflix.exception.VideoUploadException;
 import com.anthat.cineflix.model.Video;
-import com.anthat.cineflix.repo.VideoRepo;
+import com.anthat.cineflix.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.TranscodeService;
 import com.anthat.cineflix.service.VideoOnboardService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
 
     private final TranscodeService transcodeService;
 
-    private final VideoRepo videoRepo;
+    private final VideoSQLRepo videoSQLRepo;
 
     private String copyFileToPath(MultipartFile file, Path uploadPath) throws IOException {
 
@@ -80,7 +80,7 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
             videoEntity.setCreatedAt(System.currentTimeMillis());
 
             // Save video object into postgres
-            videoRepo.save(videoEntity);
+            videoSQLRepo.save(videoEntity);
 
             // Now need to transcode the video and save different versions of the file using ffmpeg
             Path destinationPath = Paths.get(DIR, "transcode", videoId);
@@ -100,11 +100,11 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
     @Override
     public VideoDTO removeVideo(String videoId) throws VideoAccessException, VideoDeleteException {
         try {
-            Video foundVideo = videoRepo.findById(videoId).orElse(null);
+            Video foundVideo = videoSQLRepo.findById(videoId).orElse(null);
             if (foundVideo == null) {
                 throw new VideoAccessException("Request video not found");
             }
-            videoRepo.deleteById(videoId);
+            videoSQLRepo.deleteById(videoId);
         } catch (IllegalArgumentException exp) {
             throw new VideoAccessException(exp.getMessage());
         } catch (Exception exp) {

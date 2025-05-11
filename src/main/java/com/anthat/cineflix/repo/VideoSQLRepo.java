@@ -13,7 +13,7 @@ import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_ALL_VIDEO_NEW_ARR
 import static com.anthat.cineflix.util.AppConstants.QUERY_FIND_ALL_WITH_TAGS;
 
 @Repository
-public interface VideoRepo extends JpaRepository<Video, String> {
+public interface VideoSQLRepo extends JpaRepository<Video, String> {
 
     @Override
     @Query(QUERY_FIND_ALL_WITH_TAGS)

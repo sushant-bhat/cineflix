@@ -1,4 +1,4 @@
-package com.anthat.cineflix.security;
+package com.anthat.cineflix.security.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

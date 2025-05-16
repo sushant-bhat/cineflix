@@ -1,5 +1,7 @@
 package com.anthat.cineflix.security;
 
+import com.anthat.cineflix.security.auth.AuthTokenFilter;
+import com.anthat.cineflix.security.ratelimiter.RateLimiterFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,8 @@ public class SecurityConfig {
 
     private final AuthTokenFilter authTokenFilter;
 
+    private final RateLimiterFilter rateLimiterFilter;
+
     @Bean
     public AuthenticationProvider authenticationProvider(@Qualifier("userService") UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -49,6 +53,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimiterFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -4,7 +4,7 @@ import com.anthat.cineflix.api.payload.UserDetailsResponse;
 import com.anthat.cineflix.api.payload.WatchListResponse;
 import com.anthat.cineflix.dto.UserDTO;
 import com.anthat.cineflix.dto.WatchListDTO;
-import com.anthat.cineflix.security.JwtUtil;
+import com.anthat.cineflix.security.auth.JwtUtil;
 import com.anthat.cineflix.service.VideoMetaService;
 import com.anthat.cineflix.service.impl.UserService;
 import lombok.RequiredArgsConstructor;

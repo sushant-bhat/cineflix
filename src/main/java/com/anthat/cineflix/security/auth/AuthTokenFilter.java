@@ -1,4 +1,4 @@
-package com.anthat.cineflix.security;
+package com.anthat.cineflix.security.auth;
 
 import com.anthat.cineflix.service.impl.UserService;
 import jakarta.servlet.FilterChain;
@@ -32,6 +32,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         String authorizationHeader = request.getHeader("Authorization");
         String jwtToken = jwtUtil.extractJwtToken(authorizationHeader);
+
+        if (jwtToken == null || jwtToken.isBlank()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String userName = jwtUtil.extractUserName(jwtToken);
 
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {

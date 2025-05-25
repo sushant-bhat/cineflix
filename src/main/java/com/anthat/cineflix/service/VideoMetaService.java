@@ -1,11 +1,11 @@
 package com.anthat.cineflix.service;
 
-import com.anthat.cineflix.config.ModuleConfig;
-import com.anthat.cineflix.dto.VideoDTO;
-import com.anthat.cineflix.dto.VideoProgressDTO;
-import com.anthat.cineflix.dto.WatchListDTO;
-import com.anthat.cineflix.exception.VideoAccessException;
-import com.anthat.cineflix.exception.VideoUpdateException;
+import com.anthat.cineflix.service.config.ModuleConfig;
+import com.anthat.cineflix.service.dto.VideoDTO;
+import com.anthat.cineflix.service.dto.VideoProgressDTO;
+import com.anthat.cineflix.service.dto.WatchListDTO;
+import com.anthat.cineflix.service.exception.VideoAccessException;
+import com.anthat.cineflix.service.exception.VideoUpdateException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

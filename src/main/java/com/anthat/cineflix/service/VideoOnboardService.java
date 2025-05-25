@@ -1,9 +1,9 @@
 package com.anthat.cineflix.service;
 
-import com.anthat.cineflix.dto.VideoDTO;
-import com.anthat.cineflix.exception.VideoAccessException;
-import com.anthat.cineflix.exception.VideoDeleteException;
-import com.anthat.cineflix.exception.VideoUploadException;
+import com.anthat.cineflix.service.dto.VideoDTO;
+import com.anthat.cineflix.service.exception.VideoAccessException;
+import com.anthat.cineflix.service.exception.VideoDeleteException;
+import com.anthat.cineflix.service.exception.VideoUploadException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface VideoOnboardService {

@@ -1,9 +1,9 @@
 package com.anthat.cineflix.service.impl;
 
-import com.anthat.cineflix.dto.UserDTO;
-import com.anthat.cineflix.model.Authority;
-import com.anthat.cineflix.model.User;
-import com.anthat.cineflix.repo.UserRepo;
+import com.anthat.cineflix.service.dto.UserDTO;
+import com.anthat.cineflix.data.model.Authority;
+import com.anthat.cineflix.data.model.User;
+import com.anthat.cineflix.data.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

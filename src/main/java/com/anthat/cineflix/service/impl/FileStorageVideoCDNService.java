@@ -1,10 +1,10 @@
 package com.anthat.cineflix.service.impl;
 
-import com.anthat.cineflix.dto.VideoStreamDTO;
-import com.anthat.cineflix.dto.VideoImageDTO;
-import com.anthat.cineflix.exception.VideoAccessException;
-import com.anthat.cineflix.model.Video;
-import com.anthat.cineflix.repo.VideoSQLRepo;
+import com.anthat.cineflix.service.dto.VideoStreamDTO;
+import com.anthat.cineflix.service.dto.VideoImageDTO;
+import com.anthat.cineflix.service.exception.VideoAccessException;
+import com.anthat.cineflix.data.model.Video;
+import com.anthat.cineflix.data.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.VideoCDNService;
 import com.anthat.cineflix.util.AppConstants;
 import lombok.RequiredArgsConstructor;

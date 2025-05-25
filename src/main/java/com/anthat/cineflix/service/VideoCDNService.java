@@ -1,8 +1,8 @@
 package com.anthat.cineflix.service;
 
-import com.anthat.cineflix.dto.VideoStreamDTO;
-import com.anthat.cineflix.dto.VideoImageDTO;
-import com.anthat.cineflix.exception.VideoAccessException;
+import com.anthat.cineflix.service.dto.VideoStreamDTO;
+import com.anthat.cineflix.service.dto.VideoImageDTO;
+import com.anthat.cineflix.service.exception.VideoAccessException;
 import org.springframework.stereotype.Service;
 
 @Service

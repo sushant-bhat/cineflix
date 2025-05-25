@@ -1,3 +1,6 @@
+PROJECT SETUP
+1.
+
 UPLOADING VIDEO
 1. SAVING VIDEO METADATA INTO A DB (SQL OR NO-SQL)
 => Normalization of video metadata
@@ -44,3 +47,6 @@ SECURITY (AUTHORIZATION & AUTHENTICATION)
     => When B receives this EEM, it will first decrypt it with A's public key and get EM
     => Then B decrypts this EM further using its own private key to get the original message
     => If some hacker intercepts this EEM in between, the hacker can decrypt it using A's public key but it will only get the encrypted message EM
+
+RATE LIMITING
+=>

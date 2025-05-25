@@ -1,7 +1,7 @@
 package com.anthat.cineflix.service.impl;
 
-import com.anthat.cineflix.model.Video;
-import com.anthat.cineflix.repo.VideoSQLRepo;
+import com.anthat.cineflix.data.model.Video;
+import com.anthat.cineflix.data.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.TranscodeService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

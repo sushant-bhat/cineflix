@@ -1,16 +1,16 @@
 package com.anthat.cineflix.service.impl;
 
-import com.anthat.cineflix.config.ModuleConfig;
-import com.anthat.cineflix.dto.VideoDTO;
-import com.anthat.cineflix.dto.VideoProgressDTO;
-import com.anthat.cineflix.dto.WatchListDTO;
-import com.anthat.cineflix.exception.VideoAccessException;
-import com.anthat.cineflix.model.User;
-import com.anthat.cineflix.model.Video;
-import com.anthat.cineflix.model.VideoProgress;
-import com.anthat.cineflix.repo.UserRepo;
-import com.anthat.cineflix.repo.VideoProgressSQLRepo;
-import com.anthat.cineflix.repo.VideoSQLRepo;
+import com.anthat.cineflix.service.config.ModuleConfig;
+import com.anthat.cineflix.service.dto.VideoDTO;
+import com.anthat.cineflix.service.dto.VideoProgressDTO;
+import com.anthat.cineflix.service.dto.WatchListDTO;
+import com.anthat.cineflix.service.exception.VideoAccessException;
+import com.anthat.cineflix.data.model.User;
+import com.anthat.cineflix.data.model.Video;
+import com.anthat.cineflix.data.model.VideoProgress;
+import com.anthat.cineflix.data.repo.UserRepo;
+import com.anthat.cineflix.data.repo.VideoProgressSQLRepo;
+import com.anthat.cineflix.data.repo.VideoSQLRepo;
 import com.anthat.cineflix.service.VideoMetaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

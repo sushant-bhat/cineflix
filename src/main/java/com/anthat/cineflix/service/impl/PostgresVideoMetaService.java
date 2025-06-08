@@ -74,7 +74,7 @@ public class PostgresVideoMetaService implements VideoMetaService {
             case WATCHLIST -> videoList = getWatchListVideos(moduleConfig.getUsername());
         }
 
-        return videoList.stream().map(VideoDTO::clone).toList();
+        return videoList.stream().filter(Video::isAvailable).map(VideoDTO::clone).toList();
     }
 
     private List<Video> getPendingVideos(String userName) {

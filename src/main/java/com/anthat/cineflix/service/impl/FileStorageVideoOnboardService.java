@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,8 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
     private final TranscodeService transcodeService;
 
     private final VideoSQLRepo videoSQLRepo;
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     private String copyFileToPath(MultipartFile file, Path uploadPath) throws IOException {
 
@@ -77,14 +80,16 @@ public class FileStorageVideoOnboardService implements VideoOnboardService {
             videoEntity.setVideoContentType(videoFile.getContentType());
             videoEntity.setVideoUrl(videoPath);
 
+            videoEntity.setAvailable(false);
             videoEntity.setCreatedAt(System.currentTimeMillis());
 
             // Save video object into postgres
             videoSQLRepo.save(videoEntity);
 
             // Now need to transcode the video and save different versions of the file using ffmpeg
-            Path destinationPath = Paths.get(DIR, "transcode", videoId);
-            transcodeService.transcodeVideo(videoPath, videoId, destinationPath);
+//            Path destinationPath = Paths.get(DIR, "transcode", videoId);
+            kafkaTemplate.send("video-upload", videoId);
+//            transcodeService.transcodeVideo(videoId);
 
             return videoDetails;
         } catch (IOException e) {

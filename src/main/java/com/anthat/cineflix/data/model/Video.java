@@ -2,6 +2,7 @@ package com.anthat.cineflix.data.model;
 
 import com.anthat.cineflix.service.dto.VideoDTO;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -59,6 +60,9 @@ public class Video {
     private String transcodedVideoSegmentUrl;
 
     private String transcodedVideoManifestUrl;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean available;
 
     private Long createdAt = System.currentTimeMillis();
 

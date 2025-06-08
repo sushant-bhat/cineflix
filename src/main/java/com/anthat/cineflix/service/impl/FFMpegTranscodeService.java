@@ -6,6 +6,8 @@ import com.anthat.cineflix.service.TranscodeService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +32,9 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class FFMpegTranscodeService implements TranscodeService {
 
+    @Value("${app.upload.dir}")
+    private String DIR;
+
     private final VideoSQLRepo videoSQLRepo;
 
     private final Executor transcodeTaskExecutor;
@@ -39,9 +45,14 @@ public class FFMpegTranscodeService implements TranscodeService {
 
     @Override
     @Async
-    public void transcodeVideo(String sourceVideoUrl, String videoId, Path destinationPath) throws IOException {
+    @KafkaListener(topics = "video-upload", groupId = "transcoder")
+    public void transcodeVideo(String videoId) throws IOException {
         List<String> resolutions = List.of("640x360", "854x480", "1280x720", "1920x1080");
         List<String> bitRates = List.of("500k", "800k", "1500k", "4000k");
+        Path destinationPath = Paths.get(DIR, "transcode", videoId);
+
+        Video foundVideo = videoSQLRepo.findById(videoId).orElseThrow();
+        String sourceVideoUrl = foundVideo.getVideoUrl();
 
         // /Users/s1b030z/Repo/cineflix/data/transcode/<id>
         if (!Files.exists(destinationPath)) {
@@ -138,6 +149,7 @@ public class FFMpegTranscodeService implements TranscodeService {
         Video video = videoSQLRepo.findById(videoId).orElseThrow();
         video.setTranscodedVideoManifestUrl(outputDir.toString());
         video.setTranscodedVideoSegmentUrl(outputDir.toString());
+        video.setAvailable(true);
         videoSQLRepo.save(video);
     }
 
